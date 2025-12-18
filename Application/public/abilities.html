@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" width="device-width, initial-scale=1.0">
+    <title>AncientWhiteArmyVet's D&D 5E Ability Generator</title>
+    <link href="https://fonts.googleapis.com/css?family=Cinzel|Cinzel+Decorative" rel="stylesheet">
+    <link rel="stylesheet" href="./css/reset.css">
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/header.css">
+    <link rel="stylesheet" href="./css/menu.css">
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/footer.css">
+</head>
+
+<body>
+    <div class="wrapper">
+        <header>
+            <div class="header-content">
+                <div class="site-title vertical-center">
+                    <ul>
+                        <li> AncientWhiteArmyVet's RPG Tools</li>
+                    </ul>
+                </div>
+
+                <nav>
+                    <div class="menu-wrap">
+                        <input type="checkbox" class="toggler">
+                        <div class="hamburger">
+                            <div></div>
+                        </div>
+                        <div class="menu">
+                            <div>
+                                <div>
+                                    <ul>
+                                        <li><a href="./home.html">Home</a></li>
+                                        <li><a href="./physical-stats.html">Physical Stat Generator</a></li>
+                                        <li><a href="./abilities.html">Ability Generator</a></li>
+                                        <li><a href="./pregen-characters.html">Pre-Generated Characters</a></li>
+                                        <li><a href="" onclick="doLogout(event)" id="logout">Log Off</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+
+            <div class="divider header-divider">
+                <hr class="divider-rule header">
+            </div>
+        </header>
+
+        <main>
+            <div class="container features">
+                <h1>D&amp;D 5E Abilityt Generator</h1>
+                <h2>
+                    If you like the thrill of rolling random ability scores, this is the app for you! Using the standard
+                    4d6 - Drop the Lowest algirithm, start your character creation journey here...
+                </h2>
+
+                <h3>Roll Your Stats</h3>
+                <div class="section-image">
+                    <img src="./images/3d6.png" alt="">
+                </div>
+
+                <div id="calc-abilities-button">
+                    <button id="calc-abilities" class="button">Calculate Abilities</button>
+                </div>
+
+                <div class="calculated-abilities" id="calculated-abilities">
+                    <article class="features-item">
+                        <h3>Assigned Abilities</h3>
+                        <div id="assigned-abilities"></div>
+                    </article>
+                    <article class="features-item">
+                        <h3>Ordered Abilities</h3>
+                        <div id="ordered-abilities"></div>
+                    </article>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="divider footer">
+                <hr class="divider-rule">
+            </div>
+            <div class="copyright">&copy; 2020 Frank Jamison</div>
+        </footer>
+    </div>
+    <script src="../lib/api.config.js"></script>
+    <script src="../lib/simple-storage.js"></script>
+    <script src="../lib/service-helpers.js"></script>
+    <script src="../lib/auth.service.js"></script>
+    <script src="../lib/auth.js"></script>
+    <script src="../lib/auth.guard.js"></script>
+    <script src="./src/jquery-1.12.4.min.js"></script>
+    <script src="./src/abilityGenerator.js"></script>
+</body>
+
+</html>

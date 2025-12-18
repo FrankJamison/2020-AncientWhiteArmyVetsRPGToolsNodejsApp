@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" width="device-width, initial-scale=1.0">
+    <title>AncientWhiteArmyVet's D&D 5E Pre-Generated Characters</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css?family=Cinzel|Cinzel+Decorative" rel="stylesheet">
+    <link rel="stylesheet" href="./css/reset.css">
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/header.css">
+    <link rel="stylesheet" href="./css/menu.css">
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/characters.css">
+    <link rel="stylesheet" href="./css/add-characters.css">
+    <link rel="stylesheet" href="./css/footer.css">
+</head>
+
+<body>
+    <div class="wrapper">
+        <header>
+            <div class="header-content">
+                <div class="site-title vertical-center">
+                    <ul>
+                        <li> AncientWhiteArmyVet's RPG Tools</li>
+                    </ul>
+                </div>
+
+                <nav>
+                    <div class="menu-wrap">
+                        <input type="checkbox" class="toggler">
+                        <div class="hamburger">
+                            <div></div>
+                        </div>
+                        <div class="menu">
+                            <div>
+                                <div>
+                                    <ul>
+                                        <li><a href="./home.html">Home</a></li>
+                                        <li><a href="./physical-stats.html">Physical Stat Generator</a></li>
+                                        <li><a href="./abilities.html">Ability Generator</a></li>
+                                        <li><a href="./pregen-characters.html">Pre-Generated Characters</a></li>
+                                        <li><a href="" onclick="doLogout(event)" id="logout">Log Off</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+
+            <div class="divider header-divider">
+                <hr class="divider-rule header">
+            </div>
+        </header>
+
+        <main>
+            <div class="container features">
+                <div class="character-form">
+                    <form>
+                        <div class="form-row">
+                            <div class="col-md-6">
+                                <label class="sr-only" for="formInputCharacterName">Character Name</label>
+                                <input id="formInputCharacterName" class="form-control" type="text"
+                                    name="character-name" placeholder="Character Name" />
+                            </div>
+                            <div class="col-md-2">
+                                <label class="sr-only" for="formInputCharacterRace">Character Race</label>
+                                <input id="formInputCharacterRace" class="form-control" type="text"
+                                    name="character-race" placeholder="Character Race" />
+                            </div>
+                            <div class="col-md-2">
+                                <label class="sr-only" for="formInputCharacterClass">Character Class</label>
+                                <input id="formInputCharacterClass" class="form-control" type="text"
+                                    name="character-class" placeholder="Character Class" />
+                            </div>
+                            <div class="col-md-2">
+                                <label class="sr-only" for="formInputCharacterLevel">Character Level</label>
+                                <input id="formInputCharacterLevel" class="form-control" type="text"
+                                    name="character-level" placeholder="Character Level" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="sr-only" for="formInputCharacterBuild">Character Build</label>
+                                <input id="formInputCharacterBuild" class="form-control" type="text"
+                                    name="character-build" placeholder="Character Build" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="sr-only" for="formInputCharacterSheet">Character Sheet</label>
+                                <input id="formInputCharacterSheet" class="form-control" type="text"
+                                    name="character-sheet" placeholder="Character Sheet" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="sr-only" for="formInputCharacterImage">Character Image</label>
+                                <input id="formInputCharacterImage" class="form-control" type="text"
+                                    name="character-image" placeholder="Character Image" />
+                            </div>
+                            <div class="col-md-12">
+                                <button type="submit" class="btn btn-primary add-btn" onclick="doAddCharacter(event)">
+                                    ADD CHARACTER
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="characters">Loading...</div>
+            </div>
+        </main>
+
+
+        <footer>
+            <div class="divider footer">
+                <hr class="divider-rule">
+            </div>
+            <div class="copyright">&copy; 2020 Frank Jamison</div>
+        </footer>
+    </div>
+    <script src="./lib/api.config.js"></script>
+    <script src="./lib/simple-storage.js"></script>
+    <script src="./lib/service-helpers.js"></script>
+    <script src="./lib/auth.service.js"></script>
+    <script src="./lib/auth.js"></script>
+    <script src="./lib/auth.guard.js"></script>
+    <script src="./characters/characters-api.service.js"></script>
+    <script src="./characters/add-characters.service.js"></script>
+    <script src="./characters/getCharacterSelection.js"></script>
+    <script src="./characters/characters.js"></script>
+    <script src="./app.js"></script>
+</body>
+
+</html>

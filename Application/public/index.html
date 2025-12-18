@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" width="device-width, initial-scale=1.0">
+    <title>AncientWhiteArmyVet's RPG Tools</title>
+    <link href="https://fonts.googleapis.com/css?family=Cinzel|Cinzel+Decorative" rel="stylesheet">
+    <link rel="stylesheet" href="./css/reset.css">
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/header.css">
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/footer.css">
+</head>
+
+<body>
+    <div class="wrapper">
+        <header>
+            <div class="header-content">
+                <div class="site-title vertical-center">
+                    <ul>
+                        <li> AncientWhiteArmyVet's RPG Tools</li>
+                    </ul>
+                </div>
+                <div id="logout"></div>
+            </div>
+
+            <div class="divider header-divider">
+                <hr class="divider-rule header">
+            </div>
+        </header>
+
+        <main class="index">
+            <h1>Welcome to AncientWhiteArmyVet's RPG Tools Website!</h1>
+            <p>Please login to view our tools or register if you don't already have an account.</p>
+            <div class="auth-container">
+                <div class="auth login">
+                    <form id="login_form" novalidate>
+                        <h2>Login</h2>
+                        <label for="formInputUsername">Username: </label>
+                        <input id="formInputUsername" type="text" placeholder="Username">
+                        <label for="formInputPassword">Password: </label>
+                        <input id="formInputPassword" type="password" placeholder="Password">
+                        <button type="submit" form="login_form" value="Submit" class="button"
+                            onclick="doLogin(event)">Login</button>
+                    </form>
+                </div>
+                <div class="auth registration">
+                    <form id="registration_form" novalidate>
+                        <h2>Register</h2>
+                        <label for="formInputUsernameReg">Username: </label>
+                        <input id="formInputUsernameReg" type="text" placeholder="Username">
+                        <label for="formInputPasswordReg">Password: </label>
+                        <input id="formInputPasswordReg" type="password" placeholder="Password">
+                        <label for="formInputEmailReg">Email: </label>
+                        <input id="formInputEmailReg" type="email" placeholder="Email Address" />
+                        <button type="submit" form="registration_form" value="Submit" class="button"
+                            onclick="doRegister(event)">Register</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="divider footer">
+                <hr class="divider-rule">
+            </div>
+            <div class="copyright">&copy; 2020 Frank Jamison</div>
+        </footer>
+    </div>
+
+    <script src="./lib/api.config.js"></script>
+    <script src="./lib/simple-storage.js"></script>
+    <script src="./lib/service-helpers.js"></script>
+    <script src="./lib/auth.service.js"></script>
+    <script src="./lib/auth.js"></script>
+</body>
+
+</html>

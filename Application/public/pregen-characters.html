@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" width="device-width, initial-scale=1.0">
+    <title>AncientWhiteArmyVet's D&D 5E Pre-Generated Characters</title>
+    <link href="https://fonts.googleapis.com/css?family=Cinzel|Cinzel+Decorative" rel="stylesheet">
+    <link rel="stylesheet" href="./css/reset.css">
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/header.css">
+    <link rel="stylesheet" href="./css/menu.css">
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/characters.css">
+    <link rel="stylesheet" href="./css/footer.css">
+</head>
+
+<body>
+    <div class="wrapper">
+        <header>
+            <div class="header-content">
+                <div class="site-title vertical-center">
+                    <ul>
+                        <li> AncientWhiteArmyVet's RPG Tools</li>
+                    </ul>
+                </div>
+
+                <nav>
+                    <div class="menu-wrap">
+                        <input type="checkbox" class="toggler">
+                        <div class="hamburger">
+                            <div></div>
+                        </div>
+                        <div class="menu">
+                            <div>
+                                <div>
+                                    <ul>
+                                        <li><a href="./home.html">Home</a></li>
+                                        <li><a href="./physical-stats.html">Physical Stat Generator</a></li>
+                                        <li><a href="./abilities.html">Ability Generator</a></li>
+                                        <li><a href="./pregen-characters.html">Pre-Generated Characters</a></li>
+                                        <li><a href="" onclick="doLogout(event)" id="logout">Log Off</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+
+            <div class="divider header-divider">
+                <hr class="divider-rule header">
+            </div>
+        </header>
+
+        <main>
+            <div class="container features">
+                <h1>D&amp;D 5E Pre-Generated Characters</h1>
+                <h2>
+                    For those of you who play D&D at SoCal Games and Comics in Temecula, here are some of the pregens I
+                    have made for you to use at store events.
+                </h2>
+
+                <form id="get_characters_form" novalidate>
+                    <div id="class-selector">
+                        <label for="class">Select a Class: </label>
+                        <select name="class" id="class">
+                            <option value="Artificer">Artificer</option>
+                            <option value="Barbarian">Barbarian</option>
+                            <option value="Bard">Bard</option>
+                            <option value="Blood Hunter">Blood Hunter</option>
+                            <option value="Cleric">Cleric</option>
+                            <option value="Druid">Druid</option>
+                            <option value="Fighter">Fighter</option>
+                            <option value="Monk">Monk</option>
+                            <option value="Paladin">Paladin</option>
+                            <option value="Ranger">Ranger</option>
+                            <option value="Rogue">Rogue</option>
+                            <option value="Sorcerer">Sorcerer</option>
+                            <option value="Warlock">Warlock</option>
+                            <option value="Wizard">Wizard</option>
+                        </select>
+                    </div>
+                    <div id="level-selector">
+                        <label for="level">Select a Level: </label>
+                        <select name="level" id="level">
+                            <option value="1">1st Level</option>
+                            <option value="2">2nd Level</option>
+                            <option value="3">3rd Level</option>
+                            <option value="4">4th Level</option>
+                            <option value="5">5th Level</option>
+                            <option value="6">6th Level</option>
+                            <option value="7">7th Level</option>
+                            <option value="8">8th Level</option>
+                            <option value="9">9th Level</option>
+                            <option value="10">10th Level</option>
+                            <option value="11">11th Level</option>
+                            <option value="12">12th Level</option>
+                            <option value="13">13th Level</option>
+                            <option value="14">14th Level</option>
+                            <option value="15">15th Level</option>
+                            <option value="16">16th Level</option>
+                            <option value="17">17th Level</option>
+                            <option value="18">18th Level</option>
+                            <option value="19">19th Level</option>
+                            <option value="20">20th Level</option>
+                        </select>
+                    </div>
+                    <button type="submit" id="getCharacters" onclick="doGetCharacters(event);" class="button">
+                        Search
+                    </button>
+                </form>
+
+                <div id="characters">
+                    <div>Loading...</div>
+                </div>
+            </div>
+        </main>
+
+
+        <footer>
+            <div class="divider footer">
+                <hr class="divider-rule">
+            </div>
+            <div class="copyright">&copy; 2020 Frank Jamison</div>
+        </footer>
+    </div>
+    <script src="./lib/api.config.js"></script>
+    <script src="./lib/simple-storage.js"></script>
+    <script src="./lib/service-helpers.js"></script>
+    <script src="./lib/auth.service.js"></script>
+    <script src="./lib/auth.js"></script>
+    <script src="./lib/auth.guard.js"></script>
+    <script src="./characters/characters-api.service.js"></script>
+    <script src="./characters/characters.service.js"></script>
+    <script src="./characters/getCharacterSelection.js"></script>
+    <script src="./characters/characters.js"></script>
+    <script src="./app.js"></script>
+</body>
+
+</html>

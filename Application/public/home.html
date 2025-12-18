@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" width="device-width, initial-scale=1.0">
+    <title>AncientWhiteArmyVet's RPG Tools Home Page</title>
+    <link href="https://fonts.googleapis.com/css?family=Cinzel|Cinzel+Decorative" rel="stylesheet">
+    <link rel="stylesheet" href="./css/reset.css">
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/header.css">
+    <link rel="stylesheet" href="./css/menu.css">
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/footer.css">
+</head>
+
+<body>
+    <div class="wrapper">
+        <header>
+            <div class="header-content">
+                <div class="site-title vertical-center">
+                    <ul>
+                        <li> AncientWhiteArmyVet's RPG Tools</li>
+                    </ul>
+                </div>
+
+                <nav>
+                    <div class="menu-wrap">
+                        <input type="checkbox" class="toggler">
+                        <div class="hamburger">
+                            <div></div>
+                        </div>
+                        <div class="menu">
+                            <div>
+                                <div>
+                                    <ul>
+                                        <li><a href="./home.html">Home</a></li>
+                                        <li><a href="./physical-stats.html">Physical Stat Generator</a></li>
+                                        <li><a href="./abilities.html">Ability Generator</a></li>
+                                        <li><a href="./pregen-characters.html">Pre-Generated Characters</a></li>
+                                        <li><a href="" onclick="doLogout(event)" id="logout">Log Off</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+
+            <div class="divider header-divider">
+                <hr class="divider-rule header">
+            </div>
+        </header>
+
+        <main class="index">
+            <h1>Welcome to AncientWhiteArmyVet's RPG Tools!</h1>
+            <p class="center">Here we present a number of tools for you to use during character generation in the
+                5th Edition of Dungeons & Dragons.</p>
+            <p class="center">The tools here include a random physical stat generator that covers all of the
+                official races available to date to determine the height, weight, and age of your character; an
+                ability generator that uses the roll 4d6 and drop lowest paradigm; and a slew of pre-generated
+                characters for you to choose from if you just want to pick up a character sheet and go.</p>
+            <p class="center">Use the menu at the top right of the page to select a tool!</p>
+        </main>
+
+        <footer>
+            <div class="divider footer">
+                <hr class="divider-rule">
+            </div>
+            <div class="copyright">&copy; 2020 Frank Jamison</div>
+        </footer>
+    </div>
+    <script src="../lib/api.config.js"></script>
+    <script src="../lib/simple-storage.js"></script>
+    <script src="../lib/service-helpers.js"></script>
+    <script src="../lib/auth.service.js"></script>
+    <script src="../lib/auth.js"></script>
+    <script src="../lib/auth.guard.js"></script>
+</body>
+
+</html>
