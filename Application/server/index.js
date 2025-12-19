@@ -274,6 +274,57 @@ app.get('/api/ping', (req, res) => {
     });
 });
 
+// Verify that critical browser assets exist on the server.
+// This helps debug Hostinger/CDN serving stale 404s or deploying an unexpected folder layout.
+app.get('/api/static-check', (req, res) => {
+    const inspect = (p) => {
+        try {
+            if (!fs.existsSync(p)) return { exists: false };
+            const st = fs.statSync(p);
+            return {
+                exists: true,
+                isFile: st.isFile(),
+                size: st.size,
+                mtime: st.mtime ? st.mtime.toISOString() : undefined,
+            };
+        } catch (e) {
+            return { exists: false, error: String(e && e.message ? e.message : e) };
+        }
+    };
+
+    const targets = {
+        public: {
+            apiConfig: path.join(publicDir, 'lib', 'api.config.js'),
+            serviceHelpers: path.join(publicDir, 'lib', 'service-helpers.js'),
+            authServiceAlias: path.join(publicDir, 'lib', 'auth-service.js'),
+            authServiceLegacy: path.join(publicDir, 'lib', 'auth.service.js'),
+            authJs: path.join(publicDir, 'lib', 'auth.js'),
+            simpleStorage: path.join(publicDir, 'lib', 'simple-storage.js'),
+        },
+        assets: {
+            apiConfig: path.join(assetsDir.lib, 'api.config.js'),
+            serviceHelpers: path.join(assetsDir.lib, 'service-helpers.js'),
+            authServiceAlias: path.join(assetsDir.lib, 'auth-service.js'),
+            authServiceLegacy: path.join(assetsDir.lib, 'auth.service.js'),
+            authJs: path.join(assetsDir.lib, 'auth.js'),
+            simpleStorage: path.join(assetsDir.lib, 'simple-storage.js'),
+        },
+    };
+
+    res.setHeader('Cache-Control', 'no-store');
+    res.json({
+        ok: true,
+        version: appVersion,
+        node: process.version,
+        publicDir,
+        assetsLibDir: assetsDir.lib,
+        files: {
+            public: Object.fromEntries(Object.entries(targets.public).map(([k, p]) => [k, { path: p, ...inspect(p) }])),
+            assets: Object.fromEntries(Object.entries(targets.assets).map(([k, p]) => [k, { path: p, ...inspect(p) }])),
+        },
+    });
+});
+
 // Convenience: make /api itself respond (helps debug hosting/routing).
 app.get('/api', (req, res) => {
     res.setHeader('Cache-Control', 'no-store');

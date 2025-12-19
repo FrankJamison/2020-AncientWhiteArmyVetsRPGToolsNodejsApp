@@ -33,12 +33,38 @@ const _ensureAuthServiceLoaded = async () => {
     }
 };
 
+const _probeAuthServiceScript = async () => {
+    try {
+        const url = `/lib/auth-service.js?__probe=${Date.now()}`;
+        const res = await fetch(url, {
+            cache: 'no-store'
+        });
+        const ct = res.headers && res.headers.get ? res.headers.get('content-type') : null;
+        return {
+            ok: res.ok,
+            status: res.status,
+            contentType: ct,
+            url
+        };
+    } catch (e) {
+        return {
+            ok: false,
+            status: 0,
+            contentType: null,
+            url: '/lib/auth-service.js',
+            error: String(e && e.message ? e.message : e)
+        };
+    }
+};
+
 const doLogin = async (e) => {
     e.preventDefault();
 
     const svc = await _ensureAuthServiceLoaded();
     if (!svc) {
-        alert('AuthService failed to load. Check that /lib/auth-service.js loaded successfully (no 404) and that /lib/api.config.js loaded first.');
+        const probe = await _probeAuthServiceScript();
+        const detail = probe && probe.status ? ` (status ${probe.status}${probe.contentType ? `, ${probe.contentType}` : ''})` : '';
+        alert(`AuthService failed to load. Check ${probe.url}${detail} and that /lib/api.config.js loaded first.`);
         return;
     }
 
@@ -76,7 +102,9 @@ const doRegister = async (e) => {
 
     const svc = await _ensureAuthServiceLoaded();
     if (!svc) {
-        alert('AuthService failed to load. Check that /lib/auth-service.js loaded successfully (no 404) and that /lib/api.config.js loaded first.');
+        const probe = await _probeAuthServiceScript();
+        const detail = probe && probe.status ? ` (status ${probe.status}${probe.contentType ? `, ${probe.contentType}` : ''})` : '';
+        alert(`AuthService failed to load. Check ${probe.url}${detail} and that /lib/api.config.js loaded first.`);
         return;
     }
 
