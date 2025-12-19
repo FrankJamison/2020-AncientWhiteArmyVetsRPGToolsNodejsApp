@@ -150,6 +150,35 @@ app.get('/index.html', (req, res) => {
     res.sendFile(path.join(publicDir, 'index.html'));
 });
 
+// Critical client scripts:
+// - must not be cached during troubleshooting
+// - must always come from public/ when available
+const _sendNoStoreFile = (res, primaryPath, fallbackPath) => {
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+
+    if (primaryPath && fs.existsSync(primaryPath)) return res.sendFile(primaryPath);
+    if (fallbackPath && fs.existsSync(fallbackPath)) return res.sendFile(fallbackPath);
+    return res.status(404).end();
+};
+
+app.get('/lib/api.config.js', (req, res) => {
+    return _sendNoStoreFile(
+        res,
+        path.join(publicDir, 'lib', 'api.config.js'),
+        path.join(assetsDir.lib, 'api.config.js'),
+    );
+});
+
+app.get('/lib/service-helpers.js', (req, res) => {
+    return _sendNoStoreFile(
+        res,
+        path.join(publicDir, 'lib', 'service-helpers.js'),
+        path.join(assetsDir.lib, 'service-helpers.js'),
+    );
+});
+
 app.get('/api/health', (req, res) => {
     res.setHeader('Cache-Control', 'no-store');
     res.json({ ok: true, service: 'api', version: appVersion, node: process.version });
