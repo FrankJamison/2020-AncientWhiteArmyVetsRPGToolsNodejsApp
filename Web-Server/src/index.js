@@ -43,6 +43,17 @@ app.use(cors());
 // ROUTE-HANDLING MIDDLEWARE FUNCTIONS
 // ************************************
 
+// Health check (useful for production diagnostics)
+app.get('/health', (req, res) => res.json({
+    ok: true,
+    service: 'api'
+}));
+
+app.get('/api/health', (req, res) => res.json({
+    ok: true,
+    service: 'api'
+}));
+
 // Partial API endpoints
 app.use('/api/auth', authRoutes); // http://localhost:3000/api/auth
 app.use('/api/user', userRoutes); // http://localhost:3000/api/users

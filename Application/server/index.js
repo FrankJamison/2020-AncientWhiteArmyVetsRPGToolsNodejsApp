@@ -35,6 +35,42 @@ logLine(`boot: cwd=${process.cwd()}`);
 
 app.get('/health', (req, res) => res.json({ ok: true }));
 
+// Diagnostics endpoint for hosts that don't provide server logs/file access.
+// Enabled only when DIAGNOSTICS_KEY is set.
+app.get('/__diag', (req, res) => {
+    const diagnosticsKey = process.env.DIAGNOSTICS_KEY;
+    if (!diagnosticsKey) return res.status(404).end();
+
+    const provided = req.query.key || req.headers['x-diagnostics-key'];
+    if (!provided || String(provided) !== String(diagnosticsKey)) {
+        return res.status(403).json({ ok: false, msg: 'Forbidden' });
+    }
+
+    const safeRead = (p) => {
+        try {
+            if (!fs.existsSync(p)) return null;
+            return fs.readFileSync(p, 'utf8');
+        } catch (e) {
+            return null;
+        }
+    };
+
+    const installOk = safeRead(path.join(process.cwd(), 'install.ok'));
+    const startOk = safeRead(path.join(process.cwd(), 'start.ok'));
+    const appLog = safeRead(logPath);
+
+    return res.json({
+        ok: true,
+        node: process.version,
+        cwd: process.cwd(),
+        publicDir,
+        port,
+        installOk: installOk ? installOk.trim() : null,
+        startOk: startOk ? startOk.trim() : null,
+        appLogTail: appLog ? String(appLog).slice(-4000) : null,
+    });
+});
+
 app.use(express.static(publicDir));
 
 app.use('/css', express.static(path.join(publicDir, 'css')));
