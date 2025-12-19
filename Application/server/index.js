@@ -211,6 +211,38 @@ app.get('/lib/service-helpers.js', (req, res) => {
     );
 });
 
+app.get('/lib/simple-storage.js', (req, res) => {
+    return _sendNoStoreFile(
+        res,
+        path.join(publicDir, 'lib', 'simple-storage.js'),
+        path.join(assetsDir.lib, 'simple-storage.js'),
+    );
+});
+
+app.get('/lib/auth.service.js', (req, res) => {
+    return _sendNoStoreFile(
+        res,
+        path.join(publicDir, 'lib', 'auth.service.js'),
+        path.join(assetsDir.lib, 'auth.service.js'),
+    );
+});
+
+app.get('/lib/auth.js', (req, res) => {
+    return _sendNoStoreFile(
+        res,
+        path.join(publicDir, 'lib', 'auth.js'),
+        path.join(assetsDir.lib, 'auth.js'),
+    );
+});
+
+app.get('/lib/auth.guard.js', (req, res) => {
+    return _sendNoStoreFile(
+        res,
+        path.join(publicDir, 'lib', 'auth.guard.js'),
+        path.join(assetsDir.lib, 'auth.guard.js'),
+    );
+});
+
 app.get('/api/health', (req, res) => {
     res.setHeader('Cache-Control', 'no-store');
     res.json({ ok: true, service: 'api', version: appVersion, node: process.version });
