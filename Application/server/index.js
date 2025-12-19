@@ -62,15 +62,12 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 app.use(cors());
 
-// API routes (re-use the existing Web-Server route modules)
-const authRoutes = require('../../Web-Server/src/routes/auth.routes');
-const userRoutes = require('../../Web-Server/src/routes/user.routes');
-const tasksRoutes = require('../../Web-Server/src/routes/tasks.routes');
-const characterRoutes = require('../../Web-Server/src/routes/character.routes');
-const {
-    error404,
-    error500
-} = require('../../Web-Server/src/middleware/errors.middleware');
+// API routes (vendored under Application/ so Hostinger can deploy only this folder)
+const authRoutes = require('./api/routes/auth.routes');
+const userRoutes = require('./api/routes/user.routes');
+const tasksRoutes = require('./api/routes/tasks.routes');
+const characterRoutes = require('./api/routes/character.routes');
+const { error404, error500 } = require('./api/middleware/errors.middleware');
 
 app.get('/health', (req, res) => res.json({ ok: true }));
 
