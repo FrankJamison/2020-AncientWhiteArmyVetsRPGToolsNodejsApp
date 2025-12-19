@@ -220,10 +220,16 @@ app.get('/lib/simple-storage.js', (req, res) => {
 });
 
 app.get('/lib/auth.service.js', (req, res) => {
+    // Prefer the legacy filename if it exists, otherwise fall back to the alias.
+    const legacyPublic = path.join(publicDir, 'lib', 'auth.service.js');
+    const legacyAssets = path.join(assetsDir.lib, 'auth.service.js');
+    const aliasPublic = path.join(publicDir, 'lib', 'auth-service.js');
+    const aliasAssets = path.join(assetsDir.lib, 'auth-service.js');
+
     return _sendNoStoreFile(
         res,
-        path.join(publicDir, 'lib', 'auth.service.js'),
-        path.join(assetsDir.lib, 'auth.service.js'),
+        legacyPublic,
+        fs.existsSync(legacyPublic) ? legacyAssets : (fs.existsSync(aliasPublic) ? aliasPublic : aliasAssets),
     );
 });
 

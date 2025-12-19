@@ -10,12 +10,35 @@ const _getAuthService = () => {
     return null;
 };
 
+const _ensureAuthServiceLoaded = async () => {
+    const existing = _getAuthService();
+    if (existing) return existing;
+
+    try {
+        if (typeof window === 'undefined') return null;
+        if (window.__authServiceLoading) return await window.__authServiceLoading;
+
+        window.__authServiceLoading = new Promise((resolve) => {
+            const script = document.createElement('script');
+            script.async = true;
+            script.src = `/lib/auth-service.js?__cb=${Date.now()}`;
+            script.onload = () => resolve(_getAuthService());
+            script.onerror = () => resolve(null);
+            document.head.appendChild(script);
+        });
+
+        return await window.__authServiceLoading;
+    } catch (e) {
+        return null;
+    }
+};
+
 const doLogin = async (e) => {
     e.preventDefault();
 
-    const svc = _getAuthService();
+    const svc = await _ensureAuthServiceLoaded();
     if (!svc) {
-        alert('AuthService failed to load. Check that /lib/auth.service.js loaded successfully (no 404) and that /lib/api.config.js loaded first.');
+        alert('AuthService failed to load. Check that /lib/auth-service.js loaded successfully (no 404) and that /lib/api.config.js loaded first.');
         return;
     }
 
@@ -51,9 +74,9 @@ const doLogin = async (e) => {
 const doRegister = async (e) => {
     e.preventDefault();
 
-    const svc = _getAuthService();
+    const svc = await _ensureAuthServiceLoaded();
     if (!svc) {
-        alert('AuthService failed to load. Check that /lib/auth.service.js loaded successfully (no 404) and that /lib/api.config.js loaded first.');
+        alert('AuthService failed to load. Check that /lib/auth-service.js loaded successfully (no 404) and that /lib/api.config.js loaded first.');
         return;
     }
 
