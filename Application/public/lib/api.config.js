@@ -1,13 +1,12 @@
-// In local dev, the API runs separately on localhost:3001.
-// In production, the safest default is same-origin `/api`.
+// Default behavior: use same-origin `/api` (production-style).
+// If you want to point somewhere else (including local dev at localhost:3001), override it.
 // You can override via:
 // - <meta name="api-base-url" content="/api"> (same-origin)
 // - <meta name="api-base-url" content="https://api.example.com/api"> (separate API host)
 // - window.__API_BASE_URL = '/api' OR 'https://api.example.com/api'
 
-const _isLocalHost =
-    typeof window !== 'undefined' &&
-    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+// NOTE: We intentionally do NOT auto-switch to localhost:3001 in dev.
+// If you need local dev API, set a meta tag or window.__API_BASE_URL to "http://localhost:3001/api".
 
 const _readMeta = (name) => {
     try {
@@ -32,4 +31,4 @@ const _overrideApiBase =
 
 const _apiBase = _normalizeApiBase(_overrideApiBase);
 
-const BASE_API_URL = _apiBase || (_isLocalHost ? 'http://localhost:3001/api' : '/api');
+const BASE_API_URL = _apiBase || '/api';
