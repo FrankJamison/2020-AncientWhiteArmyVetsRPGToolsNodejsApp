@@ -55,8 +55,12 @@ const _connect = async (dbName) =>
             password,
             port,
             connectTimeout,
-            ...(socketPath ? { socketPath } : {}),
-            ...(dbName ? { database: dbName } : {}),
+            ...(socketPath ? {
+                socketPath
+            } : {}),
+            ...(dbName ? {
+                database: dbName
+            } : {}),
         });
 
         con.connect((err) => {
