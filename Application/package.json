@@ -4,6 +4,7 @@
     "description": "RPG tools for Dungeons & Dragons 5th Edition.",
     "main": "index.js",
     "scripts": {
+        "build": "node -e \"process.exit(0)\"",
         "start": "nodemon ./server"
     },
     "author": "",
