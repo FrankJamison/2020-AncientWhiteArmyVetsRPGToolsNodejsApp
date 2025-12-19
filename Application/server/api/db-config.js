@@ -49,19 +49,23 @@ const _ensureSchema = async (con) => {
 
 const _connect = async (dbName) =>
     new Promise((resolve, reject) => {
-        const con = mysql.createConnection({
-            host,
+        const connectionOptions = {
             user,
             password,
-            port,
             connectTimeout,
-            ...(socketPath ? {
-                socketPath
-            } : {}),
-            ...(dbName ? {
-                database: dbName
-            } : {}),
-        });
+            ...(dbName ? { database: dbName } : {}),
+        };
+
+        // If a socket is provided, force socket connectivity and avoid TCP.
+        // On some shared hosts, TCP to 127.0.0.1/localhost:3306 may be blocked or not running.
+        if (socketPath) {
+            connectionOptions.socketPath = socketPath;
+        } else {
+            connectionOptions.host = host;
+            connectionOptions.port = port;
+        }
+
+        const con = mysql.createConnection(connectionOptions);
 
         con.connect((err) => {
             if (err) {
