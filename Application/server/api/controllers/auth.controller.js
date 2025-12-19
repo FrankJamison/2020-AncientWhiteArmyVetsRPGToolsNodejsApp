@@ -15,6 +15,12 @@ const {
     jwtconfig,
 } = require('../utils/jwt-helpers');
 
+const _errInfo = (err) => ({
+    code: err && err.code,
+    errno: err && err.errno,
+    message: err && err.message,
+});
+
 exports.register = async (req, res) => {
     try {
         const {
@@ -51,8 +57,10 @@ exports.register = async (req, res) => {
         try {
             user = await query(con, GET_ME_BY_USERNAME, [username]);
         } catch (err) {
+            console.error('auth.register: GET_ME_BY_USERNAME failed', _errInfo(err));
             return res.status(500).send({
                 msg: 'Could not retrieve user.',
+                error_code: err && err.code ? String(err.code) : undefined,
             });
         }
 
@@ -65,8 +73,10 @@ exports.register = async (req, res) => {
         try {
             await query(con, INSERT_NEW_USER, params);
         } catch (err) {
+            console.error('auth.register: INSERT_NEW_USER failed', _errInfo(err));
             return res.status(500).send({
                 msg: 'Could not register user. Please try again later.',
+                error_code: err && err.code ? String(err.code) : undefined,
             });
         }
 
@@ -112,8 +122,10 @@ exports.login = async (req, res) => {
         try {
             user = await query(con, GET_ME_BY_USERNAME_WITH_PASSWORD, [username]);
         } catch (err) {
+            console.error('auth.login: GET_ME_BY_USERNAME_WITH_PASSWORD failed', _errInfo(err));
             return res.status(500).send({
                 msg: 'Could not retrieve user.',
+                error_code: err && err.code ? String(err.code) : undefined,
             });
         }
 
@@ -127,8 +139,10 @@ exports.login = async (req, res) => {
         try {
             validPass = await bcrypt.compare(password, user[0].password);
         } catch (err) {
+            console.error('auth.login: bcrypt.compare failed', _errInfo(err));
             return res.status(500).send({
                 msg: 'Could not validate password.',
+                error_code: err && err.code ? String(err.code) : undefined,
             });
         }
 
