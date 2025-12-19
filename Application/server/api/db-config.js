@@ -1,4 +1,10 @@
-const mysql = require('mysql');
+let mysql;
+try {
+    mysql = require('mysql2');
+} catch (e) {
+    // Fallback for older environments.
+    mysql = require('mysql');
+}
 const {
     CREATE_USERS_TABLE
 } = require('./queries/user.queries');
@@ -16,6 +22,7 @@ const user = process.env.DB_USER || 'root';
 const password = process.env.DB_PASS || '';
 const database = process.env.DB_DATABASE || 'ancientwhitearmyvet';
 const connectTimeout = Number(process.env.DB_CONNECT_TIMEOUT_MS) || 10000;
+const socketPath = process.env.DB_SOCKET_PATH || process.env.DB_SOCKET || null;
 
 let _schemaBootstrapped = false;
 
@@ -48,9 +55,8 @@ const _connect = async (dbName) =>
             password,
             port,
             connectTimeout,
-            ...(dbName ? {
-                database: dbName
-            } : {}),
+            ...(socketPath ? { socketPath } : {}),
+            ...(dbName ? { database: dbName } : {}),
         });
 
         con.connect((err) => {

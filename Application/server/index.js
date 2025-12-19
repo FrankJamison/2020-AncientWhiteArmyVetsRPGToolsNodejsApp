@@ -155,6 +155,22 @@ app.get('/api/health', (req, res) => {
     res.json({ ok: true, service: 'api', version: appVersion, node: process.version });
 });
 
+// Convenience: make /api itself respond (helps debug hosting/routing).
+app.get('/api', (req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
+    res.json({
+        ok: true,
+        service: 'api',
+        version: appVersion,
+        node: process.version,
+        endpoints: ['/api/health', '/api/auth/login (POST)', '/api/auth/register (POST)'],
+    });
+});
+
+// Helpful method hints so GET requests don't look like "missing routes".
+app.get('/api/auth/login', (req, res) => res.status(405).json({ ok: false, msg: 'Method Not Allowed. Use POST.' }));
+app.get('/api/auth/register', (req, res) => res.status(405).json({ ok: false, msg: 'Method Not Allowed. Use POST.' }));
+
 // Host/CDN/WAF sometimes blocks "__*" paths. Provide a safe alternative.
 // Enabled only when DIAGNOSTICS_KEY is set.
 app.get('/api/diag', (req, res) => {
