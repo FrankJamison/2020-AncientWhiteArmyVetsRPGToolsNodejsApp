@@ -32,6 +32,47 @@ const logLine = (msg) => {
     }
 };
 
+// Many shared hosts hide stdout/stderr. Mirror console output into app.log.
+// Keep this lightweight and safe (truncate long lines).
+(() => {
+    const orig = {
+        log: console.log.bind(console),
+        warn: console.warn.bind(console),
+        error: console.error.bind(console),
+    };
+
+    const toLine = (args) => {
+        try {
+            const parts = args.map((a) => {
+                if (a instanceof Error) return a.stack || a.message;
+                if (typeof a === 'string') return a;
+                try {
+                    return JSON.stringify(a);
+                } catch (e) {
+                    return String(a);
+                }
+            });
+            const line = parts.join(' ');
+            return line.length > 2000 ? `${line.slice(0, 2000)}…` : line;
+        } catch (e) {
+            return '<<unprintable log line>>';
+        }
+    };
+
+    console.log = (...args) => {
+        orig.log(...args);
+        logLine(`log: ${toLine(args)}`);
+    };
+    console.warn = (...args) => {
+        orig.warn(...args);
+        logLine(`warn: ${toLine(args)}`);
+    };
+    console.error = (...args) => {
+        orig.error(...args);
+        logLine(`error: ${toLine(args)}`);
+    };
+})();
+
 process.on('uncaughtException', (err) => {
     logLine(`uncaughtException: ${err && err.stack ? err.stack : String(err)}`);
 });
