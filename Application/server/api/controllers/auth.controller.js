@@ -57,6 +57,7 @@ exports.register = async (req, res) => {
                 msg: 'Database connection failed. Please try again later.',
                 error_code: err && err.code ? String(err.code) : 'DB_CONNECT_FAILED',
                 app_version: process.env.APP_VERSION,
+                request_id: res && res.locals ? res.locals.requestId : undefined,
             });
         }
 
@@ -95,6 +96,7 @@ exports.register = async (req, res) => {
             msg: 'Could not register user. Please try again later.',
             error_code: err && err.code ? String(err.code) : 'AUTH_REGISTER_FAILED',
             app_version: process.env.APP_VERSION,
+            request_id: res && res.locals ? res.locals.requestId : undefined,
         });
     }
 };
@@ -131,6 +133,7 @@ exports.login = async (req, res) => {
                 msg: 'Database connection failed. Please try again later.',
                 error_code: err && err.code ? String(err.code) : 'DB_CONNECT_FAILED',
                 app_version: process.env.APP_VERSION,
+                request_id: res && res.locals ? res.locals.requestId : undefined,
             });
         }
 
@@ -192,6 +195,7 @@ exports.login = async (req, res) => {
             msg: 'Could not login. Please try again later.',
             error_code: err && err.code ? String(err.code) : 'AUTH_LOGIN_FAILED',
             app_version: process.env.APP_VERSION,
+            request_id: res && res.locals ? res.locals.requestId : undefined,
         });
     }
 };
