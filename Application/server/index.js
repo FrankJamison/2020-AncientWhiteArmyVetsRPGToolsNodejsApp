@@ -133,6 +133,12 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(publicDir, 'index.html'));
 });
 
+// Some hosts/browsers request the explicit document. Keep it equivalent to '/'.
+app.get('/index.html', (req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
+    res.sendFile(path.join(publicDir, 'index.html'));
+});
+
 app.get('/api/health', (req, res) => res.json({ ok: true, service: 'api' }));
 
 app.use('/api/auth', authRoutes);
