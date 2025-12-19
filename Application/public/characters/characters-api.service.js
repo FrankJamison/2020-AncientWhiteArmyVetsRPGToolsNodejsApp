@@ -6,7 +6,8 @@ const _isLocalHostName = (host) => {
 // Production safety: never let a localhost/dev override leak into a real domain.
 // If the page is not localhost, always use same-origin '/api'.
 const _pageHost = typeof window !== 'undefined' && window.location ? window.location.hostname : '';
-const _EFFECTIVE_BASE_API_URL = _isLocalHostName(_pageHost) ? BASE_API_URL : '/api';
+const _DECLARED_BASE_API_URL = (typeof BASE_API_URL !== 'undefined' && BASE_API_URL) ? BASE_API_URL : '/api';
+const _EFFECTIVE_BASE_API_URL = _isLocalHostName(_pageHost) ? _DECLARED_BASE_API_URL : '/api';
 
 const CHARACTERS_API = `${_EFFECTIVE_BASE_API_URL}/characters`; // http://localhost:3000/api/tasks
 
