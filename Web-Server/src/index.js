@@ -75,6 +75,6 @@ app.use(error404);
 app.use(error500);
 
 // listen on server port
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
     console.log(`Running on port: ${port}...`);
 });
