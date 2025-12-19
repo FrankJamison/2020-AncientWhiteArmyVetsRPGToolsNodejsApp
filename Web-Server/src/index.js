@@ -7,6 +7,7 @@ try {
 }
 
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
@@ -25,6 +26,10 @@ const port = process.env.PORT || 3001;
 const logLevel = process.env.LOG_LEVEL || 'dev';
 const env = process.env.NODE_ENV;
 
+// Serve the static front-end (Application/public) from this API server.
+// This allows a single Node process to host both the site and the /api/* endpoints.
+const publicDir = path.resolve(__dirname, '..', '..', 'Application', 'public');
+
 // Middleware - logs server requests to console
 if (env !== 'test') {
     app.use(logger(logLevel));
@@ -38,6 +43,9 @@ app.use(bodyParser.json());
 
 // Allow websites to talk to our API service.
 app.use(cors());
+
+// Static front-end
+app.use(express.static(publicDir));
 
 // ************************************
 // ROUTE-HANDLING MIDDLEWARE FUNCTIONS
