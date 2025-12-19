@@ -19,23 +19,35 @@ const refreshTokens = [];
  *  { expiresIn: 86400 } for 24 hours in seconds
  */
 // create a new auth token
-const generateAccessToken = (id, expiresIn) =>
-    jwt.sign({
+const generateAccessToken = (id, expiresIn) => {
+    const options = {
+        algorithm: 'HS256',
+        ...(expiresIn || {}),
+    };
+    return jwt.sign({
         id
-    }, jwtconfig.access, expiresIn);
+    }, jwtconfig.access, options);
+};
 
 // create a new re-auth token
-const generateRefreshToken = (id, expiresIn) =>
-    jwt.sign({
+const generateRefreshToken = (id, expiresIn) => {
+    const options = {
+        algorithm: 'HS256',
+        ...(expiresIn || {}),
+    };
+    return jwt.sign({
         id
-    }, jwtconfig.refresh, expiresIn);
+    }, jwtconfig.refresh, options);
+};
 
 // check token validity
 // NOTE: this function should NOT write to the response.
 // Callers (middleware/controllers) are responsible for sending the HTTP error.
 const verifyToken = (token, secret) => {
     try {
-        return jwt.verify(token, secret);
+        return jwt.verify(token, secret, {
+            algorithms: ['HS256'],
+        });
     } catch (err) {
         const e = new Error('Invalid token');
         e.name = 'InvalidTokenError';
