@@ -36,8 +36,14 @@ exports.register = async (req, res) => {
         try {
             con = await connection();
         } catch (err) {
+            console.error('auth.register: DB connection failed', {
+                code: err && err.code,
+                errno: err && err.errno,
+                message: err && err.message,
+            });
             return res.status(500).send({
                 msg: 'Database connection failed. Please try again later.',
+                error_code: err && err.code ? String(err.code) : undefined,
             });
         }
 
@@ -91,8 +97,14 @@ exports.login = async (req, res) => {
         try {
             con = await connection();
         } catch (err) {
+            console.error('auth.login: DB connection failed', {
+                code: err && err.code,
+                errno: err && err.errno,
+                message: err && err.message,
+            });
             return res.status(500).send({
                 msg: 'Database connection failed. Please try again later.',
+                error_code: err && err.code ? String(err.code) : undefined,
             });
         }
 
