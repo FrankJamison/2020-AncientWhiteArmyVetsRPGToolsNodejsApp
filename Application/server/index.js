@@ -180,6 +180,7 @@ app.use((req, res, next) => {
 
 // API routes (vendored under Application/ so Hostinger can deploy only this folder)
 const authRoutes = require('./api/routes/auth.routes');
+const authController = require('./api/controllers/auth.controller');
 const userRoutes = require('./api/routes/user.routes');
 const tasksRoutes = require('./api/routes/tasks.routes');
 const characterRoutes = require('./api/routes/character.routes');
@@ -499,6 +500,24 @@ app.get('/api/diag', (req, res) => {
         startOk: startOk ? startOk.trim() : null,
         appLogTail: appLog ? String(appLog).slice(-4000) : null,
     }));
+});
+
+// Cache-busting path variants for auth endpoints.
+// Implemented at the top-level app so it works even if a CDN/host is serving an older auth router.
+app.post('/api/auth/register/:cb', (req, res, next) => {
+    try {
+        return authController.register(req, res, next);
+    } catch (e) {
+        return next(e);
+    }
+});
+
+app.post('/api/auth/login/:cb', (req, res, next) => {
+    try {
+        return authController.login(req, res, next);
+    } catch (e) {
+        return next(e);
+    }
 });
 
 app.use('/api/auth', authRoutes);
