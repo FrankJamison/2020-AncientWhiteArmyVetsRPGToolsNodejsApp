@@ -1,5 +1,15 @@
-const AUTH_API = `${BASE_API_URL}/auth`; // http://localhost:3000/api/auth
-const USER_API = `${BASE_API_URL}/user`; // http://localhost:3000/api/user
+const _isLocalHostName = (host) => {
+    const h = String(host || '').toLowerCase();
+    return h === 'localhost' || h === '127.0.0.1' || h === '::1';
+};
+
+// Production safety: never let a localhost/dev override leak into a real domain.
+// If the page is not localhost, always use same-origin '/api'.
+const _pageHost = typeof window !== 'undefined' && window.location ? window.location.hostname : '';
+const _EFFECTIVE_BASE_API_URL = _isLocalHostName(_pageHost) ? BASE_API_URL : '/api';
+
+const AUTH_API = `${_EFFECTIVE_BASE_API_URL}/auth`; // http://localhost:3000/api/auth
+const USER_API = `${_EFFECTIVE_BASE_API_URL}/user`; // http://localhost:3000/api/user
 
 /**
  * @class AuthService

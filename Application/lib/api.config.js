@@ -63,4 +63,30 @@ const _apiBase = _isUnsafeOverrideForThisOrigin(_overrideApiBase) ?
     null :
     _normalizeApiBase(_overrideApiBase);
 
-const BASE_API_URL = _apiBase || '/api';
+const _finalizeBaseApiUrl = (candidate) => {
+    let base = candidate || '/api';
+
+    try {
+        const pageHost = typeof window !== 'undefined' && window.location ? window.location.hostname : '';
+        const pageProtocol = typeof window !== 'undefined' && window.location ? window.location.protocol : '';
+
+        if (!_isLocalHostName(pageHost) && base && !String(base).startsWith('/')) {
+            const u = new URL(String(base));
+            if (_isLocalHostName(u.hostname)) base = '/api';
+            if (pageProtocol === 'https:' && u.protocol !== 'https:') base = '/api';
+        }
+    } catch (e) {
+        // ignore
+    }
+
+    return base;
+};
+
+const BASE_API_URL = _finalizeBaseApiUrl(_apiBase || '/api');
+
+// Expose for debugging (safe, no secrets).
+try {
+    if (typeof window !== 'undefined') window.__EFFECTIVE_API_BASE_URL = BASE_API_URL;
+} catch (e) {
+    // ignore
+}
