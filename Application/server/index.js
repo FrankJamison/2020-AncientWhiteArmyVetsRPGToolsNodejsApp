@@ -30,6 +30,8 @@ process.on('unhandledRejection', (err) => {
 const publicDir = path.resolve(__dirname, '..', 'public');
 logLine(`boot: publicDir=${publicDir}`);
 logLine(`boot: port=${port}`);
+logLine(`boot: node=${process.version}`);
+logLine(`boot: cwd=${process.cwd()}`);
 
 app.get('/health', (req, res) => res.json({ ok: true }));
 
@@ -43,7 +45,7 @@ app.use('/lib', express.static(path.join(publicDir, 'lib')));
 app.use('/characters', express.static(path.join(publicDir, 'characters')));
 app.use('/src', express.static(path.join(publicDir, 'src')));
 
-app.listen(port, function () {
+app.listen(port, '0.0.0.0', function () {
     console.log('Server started at http://localhost:%s', port);
     logLine(`listening: http://localhost:${port}`);
 });
