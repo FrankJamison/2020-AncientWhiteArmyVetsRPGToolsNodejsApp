@@ -166,15 +166,38 @@ app.get('/__diag', (req, res) => {
         }
     };
 
+    const safeListDir = (dir) => {
+        try {
+            if (!fs.existsSync(dir)) return null;
+            const stat = fs.statSync(dir);
+            if (!stat.isDirectory()) return null;
+            return fs.readdirSync(dir).slice(0, 200);
+        } catch (e) {
+            return null;
+        }
+    };
+
     const installOk = safeRead(path.join(process.cwd(), 'install.ok'));
     const startOk = safeRead(path.join(process.cwd(), 'start.ok'));
     const appLog = safeRead(logPath);
+
+    const cssDir = path.join(publicDir, 'css');
+    const libDir = path.join(publicDir, 'lib');
+    const imagesDir = path.join(publicDir, 'images');
 
     return res.json({
         ok: true,
         node: process.version,
         cwd: process.cwd(),
         publicDir,
+        publicDirExists: fs.existsSync(publicDir),
+        publicDirEntries: safeListDir(publicDir),
+        cssDirExists: fs.existsSync(cssDir),
+        cssDirEntries: safeListDir(cssDir),
+        libDirExists: fs.existsSync(libDir),
+        libDirEntries: safeListDir(libDir),
+        imagesDirExists: fs.existsSync(imagesDir),
+        imagesDirEntries: safeListDir(imagesDir),
         port,
         installOk: installOk ? installOk.trim() : null,
         startOk: startOk ? startOk.trim() : null,
