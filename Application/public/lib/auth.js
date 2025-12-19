@@ -64,7 +64,8 @@ const doLogin = async (e) => {
     if (!svc) {
         const probe = await _probeAuthServiceScript();
         const detail = probe && probe.status ? ` (status ${probe.status}${probe.contentType ? `, ${probe.contentType}` : ''})` : '';
-        alert(`AuthService failed to load. Check ${probe.url}${detail} and that /lib/api.config.js loaded first.`);
+        const err = (typeof window !== 'undefined' && window.__authServiceError && window.__authServiceError.message) ? `\nerror: ${window.__authServiceError.message}` : '';
+        alert(`AuthService failed to load. Check ${probe.url}${detail} and that /lib/api.config.js loaded first.${err}`);
         return;
     }
 
@@ -104,7 +105,8 @@ const doRegister = async (e) => {
     if (!svc) {
         const probe = await _probeAuthServiceScript();
         const detail = probe && probe.status ? ` (status ${probe.status}${probe.contentType ? `, ${probe.contentType}` : ''})` : '';
-        alert(`AuthService failed to load. Check ${probe.url}${detail} and that /lib/api.config.js loaded first.`);
+        const err = (typeof window !== 'undefined' && window.__authServiceError && window.__authServiceError.message) ? `\nerror: ${window.__authServiceError.message}` : '';
+        alert(`AuthService failed to load. Check ${probe.url}${detail} and that /lib/api.config.js loaded first.${err}`);
         return;
     }
 
