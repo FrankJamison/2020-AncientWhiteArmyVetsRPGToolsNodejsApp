@@ -50,7 +50,10 @@
                     `Request failed (${res.status})`;
                 const errorCode = payload && (payload.error_code || (payload.error && payload.error.code));
                 const message = errorCode ? `${baseMessage} (error_code: ${String(errorCode)})` : baseMessage;
-                throw new Error(message);
+                const err = new Error(message);
+                err.status = res.status;
+                err.url = finalUrl;
+                throw err;
             }
 
             const payload = await _readJsonSafely(res);
@@ -84,7 +87,13 @@
              * @param {Object} formData - { username, email, password }
              */
             register(formData) {
-                return _postJson(`${AUTH_API}/register/${Date.now()}`, formData);
+                const cb = Date.now();
+                // Prefer a unique path (some CDNs ignore query strings for cache keys).
+                // Fallback to the legacy route if the backend isn't updated yet.
+                return _postJson(`${AUTH_API}/register/${cb}`, formData).catch((err) => {
+                    if (err && err.status === 404) return _postJson(`${AUTH_API}/register`, formData);
+                    throw err;
+                });
             }
 
             /**
@@ -93,7 +102,11 @@
              * @param {Object} formData - { username, password }
              */
             login(formData) {
-                return _postJson(`${AUTH_API}/login/${Date.now()}`, formData);
+                const cb = Date.now();
+                return _postJson(`${AUTH_API}/login/${cb}`, formData).catch((err) => {
+                    if (err && err.status === 404) return _postJson(`${AUTH_API}/login`, formData);
+                    throw err;
+                });
             }
 
             setExpiration(maxExpiration) {
