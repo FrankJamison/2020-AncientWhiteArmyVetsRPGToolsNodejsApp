@@ -3,7 +3,21 @@ const app = express();
 const fs = require('fs');
 const path = require('path');
 
+// Load local environment variables from .env (no-op if dotenv isn't installed).
+// In production, prefer setting real env vars via Hostinger Environment Variables.
+try {
+    require('dotenv').config();
+} catch (e) {
+    // ignore
+}
+
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const logger = require('morgan');
+
 const port = process.env.PORT || 4000;
+const logLevel = process.env.LOG_LEVEL || 'dev';
+const env = process.env.NODE_ENV;
 
 // Some hosts don't expose app logs. Write a small log file you can read from the file manager.
 const logPath = process.env.APP_LOG_PATH
@@ -33,7 +47,39 @@ logLine(`boot: port=${port}`);
 logLine(`boot: node=${process.version}`);
 logLine(`boot: cwd=${process.cwd()}`);
 
+// Middleware
+if (env !== 'test') {
+    try {
+        app.use(logger(logLevel));
+    } catch (e) {
+        // ignore
+    }
+}
+
+app.use(bodyParser.urlencoded({
+    extended: false
+}));
+app.use(bodyParser.json());
+app.use(cors());
+
+// API routes (re-use the existing Web-Server route modules)
+const authRoutes = require('../../Web-Server/src/routes/auth.routes');
+const userRoutes = require('../../Web-Server/src/routes/user.routes');
+const tasksRoutes = require('../../Web-Server/src/routes/tasks.routes');
+const characterRoutes = require('../../Web-Server/src/routes/character.routes');
+const {
+    error404,
+    error500
+} = require('../../Web-Server/src/middleware/errors.middleware');
+
 app.get('/health', (req, res) => res.json({ ok: true }));
+
+app.get('/api/health', (req, res) => res.json({ ok: true, service: 'api' }));
+
+app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/tasks', tasksRoutes);
+app.use('/api/characters', characterRoutes);
 
 // Diagnostics endpoint for hosts that don't provide server logs/file access.
 // Enabled only when DIAGNOSTICS_KEY is set.
@@ -80,6 +126,10 @@ app.use('/images', express.static(path.join(publicDir, 'images')));
 app.use('/lib', express.static(path.join(publicDir, 'lib')));
 app.use('/characters', express.static(path.join(publicDir, 'characters')));
 app.use('/src', express.static(path.join(publicDir, 'src')));
+
+// API error handling (kept consistent with Web-Server)
+app.use(error404);
+app.use(error500);
 
 app.listen(port, '0.0.0.0', function () {
     console.log('Server started at http://localhost:%s', port);
