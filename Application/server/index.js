@@ -18,6 +18,7 @@ const logger = require('morgan');
 const port = process.env.PORT || 4000;
 const logLevel = process.env.LOG_LEVEL || 'dev';
 const env = process.env.NODE_ENV;
+const appVersion = process.env.APP_VERSION || 'app-v2-2025-12-19';
 
 // Some hosts don't expose app logs. Write a small log file you can read from the file manager.
 const logPath = process.env.APP_LOG_PATH
@@ -103,6 +104,12 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 app.use(cors());
 
+// Identify the running build and discourage edge caching during troubleshooting.
+app.use((req, res, next) => {
+    res.setHeader('X-App-Version', appVersion);
+    next();
+});
+
 // API routes (vendored under Application/ so Hostinger can deploy only this folder)
 const authRoutes = require('./api/routes/auth.routes');
 const userRoutes = require('./api/routes/user.routes');
@@ -112,11 +119,19 @@ const { error404, error500 } = require('./api/middleware/errors.middleware');
 
 app.get('/health', (req, res) => res.json({ ok: true }));
 
+app.get('/__version', (req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
+    res.json({ ok: true, version: appVersion, node: process.version });
+});
+
 // Avoid noisy 404s in browser console.
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
 // Serve the site homepage explicitly (prevents API-style JSON 404 at '/').
-app.get('/', (req, res) => res.sendFile(path.join(publicDir, 'index.html')));
+app.get('/', (req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
+    res.sendFile(path.join(publicDir, 'index.html'));
+});
 
 app.get('/api/health', (req, res) => res.json({ ok: true, service: 'api' }));
 
