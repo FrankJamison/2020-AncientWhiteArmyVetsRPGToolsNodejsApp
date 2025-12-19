@@ -86,13 +86,25 @@ process.on('unhandledRejection', (err) => {
 // Repo layout: HTML in Application/public, most assets in Application/*.
 const appRootDir = path.resolve(__dirname, '..');
 const publicDir = path.join(appRootDir, 'public');
+
+const _pickExistingDir = (preferred, fallback) => {
+    try {
+        if (preferred && fs.existsSync(preferred) && fs.statSync(preferred).isDirectory()) return preferred;
+    } catch (e) {
+        // ignore
+    }
+    return fallback;
+};
+
+// Prefer assets under public/* (some hosts move/copy assets there),
+// but keep compatibility with the repo layout (Application/*).
 const assetsDir = {
-    css: path.join(appRootDir, 'css'),
-    lib: path.join(appRootDir, 'lib'),
-    images: path.join(appRootDir, 'images'),
-    pdf: path.join(appRootDir, 'pdf'),
-    src: path.join(appRootDir, 'src'),
-    characters: path.join(appRootDir, 'characters'),
+    css: _pickExistingDir(path.join(publicDir, 'css'), path.join(appRootDir, 'css')),
+    lib: _pickExistingDir(path.join(publicDir, 'lib'), path.join(appRootDir, 'lib')),
+    images: _pickExistingDir(path.join(publicDir, 'images'), path.join(appRootDir, 'images')),
+    pdf: _pickExistingDir(path.join(publicDir, 'pdf'), path.join(appRootDir, 'pdf')),
+    src: _pickExistingDir(path.join(publicDir, 'src'), path.join(appRootDir, 'src')),
+    characters: _pickExistingDir(path.join(publicDir, 'characters'), path.join(appRootDir, 'characters')),
 };
 logLine(`boot: appRootDir=${appRootDir}`);
 logLine(`boot: publicDir=${publicDir}`);
