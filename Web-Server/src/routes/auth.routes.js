@@ -1,9 +1,9 @@
 const express = require('express');
 const {
-  register,
-  login,
-  logout,
-  token,
+    register,
+    login,
+    logout,
+    token,
 } = require('../controllers/auth.controller');
 
 const authRoutes = express.Router();

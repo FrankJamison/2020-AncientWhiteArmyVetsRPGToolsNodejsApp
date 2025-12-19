@@ -103,7 +103,11 @@ app.get('/health', (req, res) => res.json({
 
 app.get('/__version', (req, res) => {
     res.setHeader('Cache-Control', 'no-store, max-age=0');
-    res.json({ ok: true, version: appVersion, node: process.version });
+    res.json({
+        ok: true,
+        version: appVersion,
+        node: process.version
+    });
 });
 
 app.get('/api/health', (req, res) => res.json({
