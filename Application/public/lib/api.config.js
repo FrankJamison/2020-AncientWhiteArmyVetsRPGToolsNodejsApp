@@ -35,6 +35,7 @@ const _isUnsafeOverrideForThisOrigin = (rawOverride) => {
 
     try {
         const pageHost = typeof window !== 'undefined' && window.location ? window.location.hostname : '';
+        const pageProtocol = typeof window !== 'undefined' && window.location ? window.location.protocol : '';
         if (_isLocalHostName(pageHost)) return false;
 
         const normalized = _normalizeApiBase(rawOverride);
@@ -44,6 +45,9 @@ const _isUnsafeOverrideForThisOrigin = (rawOverride) => {
         if (normalized.startsWith('/')) return false;
 
         const url = new URL(normalized);
+        // If the page is HTTPS, an http:// API base will be upgraded (CSP upgrade-insecure-requests)
+        // and typically fail. Reject it and fall back to same-origin '/api'.
+        if (pageProtocol === 'https:' && url.protocol !== 'https:') return true;
         return _isLocalHostName(url.hostname);
     } catch (e) {
         return false;

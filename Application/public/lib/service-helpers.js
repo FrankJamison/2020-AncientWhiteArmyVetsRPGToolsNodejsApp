@@ -71,10 +71,15 @@ const _throwForBadResponse = async (res) => {
  */
 const _get = async (url, options = DEFAULT_OPTIONS_WITH_AUTH) => {
     const mergedOptions = _withFreshAuthHeader(options);
-    const res = await fetch(url, {
-        method: 'GET',
-        ...mergedOptions,
-    });
+    let res;
+    try {
+        res = await fetch(url, {
+            method: 'GET',
+            ...mergedOptions,
+        });
+    } catch (err) {
+        throw new Error(`Network error while requesting ${url}: ${err && err.message ? err.message : String(err)}`);
+    }
 
     await _throwForBadResponse(res);
     const payload = await _readJsonSafely(res);
@@ -91,11 +96,16 @@ const _get = async (url, options = DEFAULT_OPTIONS_WITH_AUTH) => {
  */
 const _post = async (url, data, options = DEFAULT_OPTIONS) => {
     const mergedOptions = _withFreshAuthHeader(options);
-    const res = await fetch(url, {
-        method: 'POST',
-        ...mergedOptions,
-        body: JSON.stringify(data),
-    });
+    let res;
+    try {
+        res = await fetch(url, {
+            method: 'POST',
+            ...mergedOptions,
+            body: JSON.stringify(data),
+        });
+    } catch (err) {
+        throw new Error(`Network error while requesting ${url}: ${err && err.message ? err.message : String(err)}`);
+    }
 
     await _throwForBadResponse(res);
     const payload = await _readJsonSafely(res);
@@ -113,11 +123,16 @@ const _post = async (url, data, options = DEFAULT_OPTIONS) => {
  */
 const _put = async (url, data, options = DEFAULT_OPTIONS_WITH_AUTH) => {
     const mergedOptions = _withFreshAuthHeader(options);
-    const res = await fetch(url, {
-        method: 'PUT',
-        ...mergedOptions,
-        body: JSON.stringify(data),
-    });
+    let res;
+    try {
+        res = await fetch(url, {
+            method: 'PUT',
+            ...mergedOptions,
+            body: JSON.stringify(data),
+        });
+    } catch (err) {
+        throw new Error(`Network error while requesting ${url}: ${err && err.message ? err.message : String(err)}`);
+    }
 
     await _throwForBadResponse(res);
     const payload = await _readJsonSafely(res);
@@ -134,10 +149,15 @@ const _put = async (url, data, options = DEFAULT_OPTIONS_WITH_AUTH) => {
  */
 const _delete = async (url, options = DEFAULT_OPTIONS_WITH_AUTH) => {
     const mergedOptions = _withFreshAuthHeader(options);
-    const res = await fetch(url, {
-        method: 'DELETE',
-        ...mergedOptions,
-    });
+    let res;
+    try {
+        res = await fetch(url, {
+            method: 'DELETE',
+            ...mergedOptions,
+        });
+    } catch (err) {
+        throw new Error(`Network error while requesting ${url}: ${err && err.message ? err.message : String(err)}`);
+    }
 
     await _throwForBadResponse(res);
     const payload = await _readJsonSafely(res);
