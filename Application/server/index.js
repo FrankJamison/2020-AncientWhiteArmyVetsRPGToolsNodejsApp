@@ -82,8 +82,19 @@ process.on('unhandledRejection', (err) => {
     logLine(`unhandledRejection: ${err && err.stack ? err.stack : String(err)}`);
 });
 
-// Resolve static path regardless of current working directory.
-const publicDir = path.resolve(__dirname, '..', 'public');
+// Resolve paths regardless of current working directory.
+// Repo layout: HTML in Application/public, most assets in Application/*.
+const appRootDir = path.resolve(__dirname, '..');
+const publicDir = path.join(appRootDir, 'public');
+const assetsDir = {
+    css: path.join(appRootDir, 'css'),
+    lib: path.join(appRootDir, 'lib'),
+    images: path.join(appRootDir, 'images'),
+    pdf: path.join(appRootDir, 'pdf'),
+    src: path.join(appRootDir, 'src'),
+    characters: path.join(appRootDir, 'characters'),
+};
+logLine(`boot: appRootDir=${appRootDir}`);
 logLine(`boot: publicDir=${publicDir}`);
 logLine(`boot: port=${port}`);
 logLine(`boot: node=${process.version}`);
@@ -229,9 +240,9 @@ app.get('/api/diag', (req, res) => {
     const startOk = safeRead(path.join(process.cwd(), 'start.ok'));
     const appLog = safeRead(logPath);
 
-    const cssDir = path.join(publicDir, 'css');
-    const libDir = path.join(publicDir, 'lib');
-    const imagesDir = path.join(publicDir, 'images');
+    const publicCssDir = path.join(publicDir, 'css');
+    const publicLibDir = path.join(publicDir, 'lib');
+    const publicImagesDir = path.join(publicDir, 'images');
 
     res.setHeader('Cache-Control', 'no-store');
     return Promise.resolve(dbTest()).then((db) => res.json({
@@ -239,15 +250,29 @@ app.get('/api/diag', (req, res) => {
         version: appVersion,
         node: process.version,
         cwd: process.cwd(),
+        appRootDir,
         publicDir,
         publicDirExists: fs.existsSync(publicDir),
         publicDirEntries: safeListDir(publicDir),
-        cssDirExists: fs.existsSync(cssDir),
-        cssDirEntries: safeListDir(cssDir),
-        libDirExists: fs.existsSync(libDir),
-        libDirEntries: safeListDir(libDir),
-        imagesDirExists: fs.existsSync(imagesDir),
-        imagesDirEntries: safeListDir(imagesDir),
+        publicCssDirExists: fs.existsSync(publicCssDir),
+        publicCssDirEntries: safeListDir(publicCssDir),
+        publicLibDirExists: fs.existsSync(publicLibDir),
+        publicLibDirEntries: safeListDir(publicLibDir),
+        publicImagesDirExists: fs.existsSync(publicImagesDir),
+        publicImagesDirEntries: safeListDir(publicImagesDir),
+        assetsDir,
+        assetsCssDirExists: fs.existsSync(assetsDir.css),
+        assetsCssDirEntries: safeListDir(assetsDir.css),
+        assetsLibDirExists: fs.existsSync(assetsDir.lib),
+        assetsLibDirEntries: safeListDir(assetsDir.lib),
+        assetsImagesDirExists: fs.existsSync(assetsDir.images),
+        assetsImagesDirEntries: safeListDir(assetsDir.images),
+        assetsPdfDirExists: fs.existsSync(assetsDir.pdf),
+        assetsPdfDirEntries: safeListDir(assetsDir.pdf),
+        assetsSrcDirExists: fs.existsSync(assetsDir.src),
+        assetsSrcDirEntries: safeListDir(assetsDir.src),
+        assetsCharactersDirExists: fs.existsSync(assetsDir.characters),
+        assetsCharactersDirEntries: safeListDir(assetsDir.characters),
         port,
         dbTarget,
         db,
@@ -348,23 +373,37 @@ app.get('/__diag', (req, res) => {
     const startOk = safeRead(path.join(process.cwd(), 'start.ok'));
     const appLog = safeRead(logPath);
 
-    const cssDir = path.join(publicDir, 'css');
-    const libDir = path.join(publicDir, 'lib');
-    const imagesDir = path.join(publicDir, 'images');
+    const publicCssDir = path.join(publicDir, 'css');
+    const publicLibDir = path.join(publicDir, 'lib');
+    const publicImagesDir = path.join(publicDir, 'images');
 
     return Promise.resolve(dbTest()).then((db) => res.json({
         ok: true,
         node: process.version,
         cwd: process.cwd(),
+        appRootDir,
         publicDir,
         publicDirExists: fs.existsSync(publicDir),
         publicDirEntries: safeListDir(publicDir),
-        cssDirExists: fs.existsSync(cssDir),
-        cssDirEntries: safeListDir(cssDir),
-        libDirExists: fs.existsSync(libDir),
-        libDirEntries: safeListDir(libDir),
-        imagesDirExists: fs.existsSync(imagesDir),
-        imagesDirEntries: safeListDir(imagesDir),
+        publicCssDirExists: fs.existsSync(publicCssDir),
+        publicCssDirEntries: safeListDir(publicCssDir),
+        publicLibDirExists: fs.existsSync(publicLibDir),
+        publicLibDirEntries: safeListDir(publicLibDir),
+        publicImagesDirExists: fs.existsSync(publicImagesDir),
+        publicImagesDirEntries: safeListDir(publicImagesDir),
+        assetsDir,
+        assetsCssDirExists: fs.existsSync(assetsDir.css),
+        assetsCssDirEntries: safeListDir(assetsDir.css),
+        assetsLibDirExists: fs.existsSync(assetsDir.lib),
+        assetsLibDirEntries: safeListDir(assetsDir.lib),
+        assetsImagesDirExists: fs.existsSync(assetsDir.images),
+        assetsImagesDirEntries: safeListDir(assetsDir.images),
+        assetsPdfDirExists: fs.existsSync(assetsDir.pdf),
+        assetsPdfDirEntries: safeListDir(assetsDir.pdf),
+        assetsSrcDirExists: fs.existsSync(assetsDir.src),
+        assetsSrcDirEntries: safeListDir(assetsDir.src),
+        assetsCharactersDirExists: fs.existsSync(assetsDir.characters),
+        assetsCharactersDirEntries: safeListDir(assetsDir.characters),
         port,
         dbTarget,
         db,
@@ -376,8 +415,16 @@ app.get('/__diag', (req, res) => {
 
 app.use(express.static(publicDir));
 
+// Primary: serve assets from Application/* (this repo layout).
+app.use('/css', express.static(assetsDir.css));
+app.use('/pdf', express.static(assetsDir.pdf));
+app.use('/images', express.static(assetsDir.images));
+app.use('/lib', express.static(assetsDir.lib));
+app.use('/characters', express.static(assetsDir.characters));
+app.use('/src', express.static(assetsDir.src));
+
+// Back-compat: serve assets from Application/public/* if they exist (older layout).
 app.use('/css', express.static(path.join(publicDir, 'css')));
-app.use('/js', express.static(path.join(publicDir, 'src')));
 app.use('/pdf', express.static(path.join(publicDir, 'pdf')));
 app.use('/images', express.static(path.join(publicDir, 'images')));
 app.use('/lib', express.static(path.join(publicDir, 'lib')));

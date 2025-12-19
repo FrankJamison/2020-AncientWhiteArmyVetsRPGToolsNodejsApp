@@ -53,10 +53,13 @@ const _throwForBadResponse = async (res) => {
     if (res.ok) return;
 
     const payload = await _readJsonSafely(res);
-    const message =
+    const baseMessage =
         (payload && payload.msg) ||
         (payload && payload.error && payload.error.message) ||
         `Request failed (${res.status})`;
+
+    const errorCode = payload && (payload.error_code || (payload.error && payload.error.code));
+    const message = errorCode ? `${baseMessage} (error_code: ${String(errorCode)})` : baseMessage;
     throw new Error(message);
 };
 
