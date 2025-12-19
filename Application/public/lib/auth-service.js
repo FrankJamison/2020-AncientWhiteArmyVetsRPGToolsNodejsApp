@@ -7,6 +7,57 @@
             };
         }
 
+        const _withCacheBust = (url) => {
+            try {
+                const u = new URL(String(url), typeof window !== 'undefined' ? window.location.origin : undefined);
+                u.searchParams.set('__cb', String(Date.now()));
+                return u.toString();
+            } catch (e) {
+                const sep = String(url).includes('?') ? '&' : '?';
+                return `${url}${sep}__cb=${Date.now()}`;
+            }
+        };
+
+        const _readJsonSafely = async (res) => {
+            try {
+                return await res.json();
+            } catch (err) {
+                return null;
+            }
+        };
+
+        const _postJson = async (url, data) => {
+            const finalUrl = _withCacheBust(url);
+            let res;
+            try {
+                res = await fetch(finalUrl, {
+                    method: 'POST',
+                    cache: 'no-store',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+            } catch (err) {
+                throw new Error(`Network error while requesting ${finalUrl}: ${err && err.message ? err.message : String(err)}`);
+            }
+
+            if (!res.ok) {
+                const payload = await _readJsonSafely(res);
+                const baseMessage =
+                    (payload && payload.msg) ||
+                    (payload && payload.error && payload.error.message) ||
+                    `Request failed (${res.status})`;
+                const errorCode = payload && (payload.error_code || (payload.error && payload.error.code));
+                const message = errorCode ? `${baseMessage} (error_code: ${String(errorCode)})` : baseMessage;
+                throw new Error(message);
+            }
+
+            const payload = await _readJsonSafely(res);
+            if (payload === null) throw new Error('Invalid JSON response.');
+            return payload;
+        };
+
         const _isLocalHostName = (host) => {
             const h = String(host || '').toLowerCase();
             return h === 'localhost' || h === '127.0.0.1' || h === '::1';
@@ -33,7 +84,7 @@
              * @param {Object} formData - { username, email, password }
              */
             register(formData) {
-                return _post(`${AUTH_API}/register`, formData);
+                return _postJson(`${AUTH_API}/register`, formData);
             }
 
             /**
@@ -42,7 +93,7 @@
              * @param {Object} formData - { username, password }
              */
             login(formData) {
-                return _post(`${AUTH_API}/login`, formData);
+                return _postJson(`${AUTH_API}/login`, formData);
             }
 
             setExpiration(maxExpiration) {
