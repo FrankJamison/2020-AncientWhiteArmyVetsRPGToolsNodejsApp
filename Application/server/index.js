@@ -20,6 +20,10 @@ const logLevel = process.env.LOG_LEVEL || 'dev';
 const env = process.env.NODE_ENV;
 const appVersion = process.env.APP_VERSION || 'app-v2-2025-12-19';
 
+// Disable ETags so intermediate caches/CDNs are less likely to serve stale API responses.
+// (Hostinger edge was returning an ETag even for 500s.)
+app.disable('etag');
+
 // Some hosts don't expose app logs. Write a small log file you can read from the file manager.
 const logPath = process.env.APP_LOG_PATH
     ? path.resolve(process.env.APP_LOG_PATH)
@@ -126,6 +130,22 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
 app.use(cors());
+
+// Never cache API responses at the edge while troubleshooting.
+// This is critical because cached 500 bodies hide new diagnostics (error_code/app_version).
+app.use('/api', (req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('CDN-Cache-Control', 'no-store');
+    res.setHeader('Surrogate-Control', 'no-store');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    try {
+        res.removeHeader('ETag');
+    } catch (e) {
+        // ignore
+    }
+    next();
+});
 
 // Identify the running build and discourage edge caching during troubleshooting.
 app.use((req, res, next) => {
