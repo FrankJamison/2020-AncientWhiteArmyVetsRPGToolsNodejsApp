@@ -1,11 +1,29 @@
+const _getAuthService = () => {
+    try {
+        if (typeof window !== 'undefined' && window.authService) return window.authService;
+    } catch (e) {
+        // ignore
+    }
+
+    // Fallback: if global lexical binding exists, use it.
+    if (typeof authService !== 'undefined') return authService;
+    return null;
+};
+
 const doLogin = async (e) => {
     e.preventDefault();
+
+    const svc = _getAuthService();
+    if (!svc) {
+        alert('AuthService failed to load. Check that /lib/auth.service.js loaded successfully (no 404) and that /lib/api.config.js loaded first.');
+        return;
+    }
 
     const username = document.getElementById('formInputUsername').value;
     const password = document.getElementById('formInputPassword').value;
 
     try {
-        const res = await authService.login({
+        const res = await svc.login({
             username,
             password
         });
@@ -15,7 +33,7 @@ const doLogin = async (e) => {
             access_token,
             refresh_token
         } = res;
-        const expiryDate = authService.setExpiration(expires_in);
+        const expiryDate = svc.setExpiration(expires_in);
 
         setStorage('isAuth', auth);
         setStorage('expires_in', expiryDate);
@@ -33,12 +51,18 @@ const doLogin = async (e) => {
 const doRegister = async (e) => {
     e.preventDefault();
 
+    const svc = _getAuthService();
+    if (!svc) {
+        alert('AuthService failed to load. Check that /lib/auth.service.js loaded successfully (no 404) and that /lib/api.config.js loaded first.');
+        return;
+    }
+
     const username = document.getElementById('formInputUsernameReg').value;
     const email = document.getElementById('formInputEmailReg').value;
     const password = document.getElementById('formInputPasswordReg').value;
 
     try {
-        const res = await authService.register({
+        const res = await svc.register({
             username,
             email,
             password,
@@ -54,7 +78,12 @@ const doRegister = async (e) => {
 
 const doLogout = (e) => {
     e.preventDefault();
-    authService.logout();
+    const svc = _getAuthService();
+    if (!svc) {
+        alert('AuthService failed to load.');
+        return;
+    }
+    svc.logout();
 };
 
 // (() => {

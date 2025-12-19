@@ -66,3 +66,13 @@ class AuthService {
 }
 
 const authService = new AuthService();
+
+// Ensure authService is accessible across scripts regardless of hosting quirks.
+try {
+    if (typeof window !== 'undefined') {
+        window.authService = authService;
+        window.__authServiceLoaded = true;
+    }
+} catch (e) {
+    // ignore
+}
