@@ -40,10 +40,25 @@ exports.register = async (req, res) => {
         try {
             con = await connection();
         } catch (err) {
+            console.error('auth.register: DB connection failed', {
+                code: err && err.code,
+                errno: err && err.errno,
+                message: err && err.message,
+                target: {
+                    host: process.env.DB_HOST,
+                    port: process.env.DB_PORT,
+                    database: process.env.DB_DATABASE,
+                    user: process.env.DB_USER,
+                    socket: process.env.DB_SOCKET_PATH || process.env.DB_SOCKET,
+                },
+            });
             return res
                 .status(500)
                 .send({
-                    msg: 'Database connection failed. Please try again later.'
+                    msg: 'Database connection failed. Please try again later.',
+                    error_code: err && err.code ? String(err.code) : 'DB_CONNECT_FAILED',
+                    app_version: process.env.APP_VERSION,
+                    request_id: res && res.locals ? res.locals.requestId : undefined,
                 });
         }
 
@@ -105,7 +120,10 @@ exports.login = async (req, res) => {
             con = await connection();
         } catch (err) {
             return res.status(500).send({
-                msg: 'Database connection failed. Please try again later.'
+                msg: 'Database connection failed. Please try again later.',
+                error_code: err && err.code ? String(err.code) : 'DB_CONNECT_FAILED',
+                app_version: process.env.APP_VERSION,
+                request_id: res && res.locals ? res.locals.requestId : undefined,
             });
         }
 

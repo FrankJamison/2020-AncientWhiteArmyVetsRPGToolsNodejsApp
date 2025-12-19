@@ -1,10 +1,18 @@
-const mysql = require('mysql');
+let mysql;
+try {
+    mysql = require('mysql2');
+} catch (e) {
+    mysql = require('mysql');
+}
 const {
     CREATE_USERS_TABLE
 } = require('./queries/user.queries');
 const {
     CREATE_CHARACTER_TABLE
 } = require('./queries/character.queries');
+const {
+    CREATE_TASKS_TABLE
+} = require('./queries/tasks.queries');
 const query = require('./utils/query');
 
 // Get the Host from Environment or use default
@@ -23,18 +31,49 @@ const password = process.env.DB_PASS || '';
 
 // Get the Database from Environment or use default
 const database = process.env.DB_DATABASE || 'ancientwhitearmyvet';
+const connectTimeout = Number(process.env.DB_CONNECT_TIMEOUT_MS) || 10000;
+const socketPath = process.env.DB_SOCKET_PATH || process.env.DB_SOCKET || null;
+
+let _schemaBootstrapped = false;
+
+const _ensureSchema = async (con) => {
+    if (_schemaBootstrapped) return;
+
+    await query(con, CREATE_USERS_TABLE).catch((err) => {
+        console.log('schema users failed:', err && err.message ? err.message : err);
+    });
+
+    await query(con, CREATE_TASKS_TABLE).catch((err) => {
+        console.log('schema tasks failed:', err && err.message ? err.message : err);
+    });
+
+    await query(con, CREATE_CHARACTER_TABLE).catch((err) => {
+        console.log('schema characters failed:', err && err.message ? err.message : err);
+    });
+
+    _schemaBootstrapped = true;
+};
 
 const _connect = async (dbName) =>
     new Promise((resolve, reject) => {
-        const con = mysql.createConnection({
-            host,
+        const connectionOptions = {
             user,
             password,
-            port,
+            connectTimeout,
             ...(dbName ? {
                 database: dbName
             } : {}),
-        });
+        };
+
+        // If a socket is provided, force socket connectivity and avoid TCP.
+        if (socketPath) {
+            connectionOptions.socketPath = socketPath;
+        } else {
+            connectionOptions.host = host;
+            connectionOptions.port = port;
+        }
+
+        const con = mysql.createConnection(connectionOptions);
 
         con.connect((err) => {
             if (err) {
@@ -48,7 +87,9 @@ const _connect = async (dbName) =>
 
 const connection = async () => {
     try {
-        return await _connect(database);
+        const con = await _connect(database);
+        await _ensureSchema(con);
+        return con;
     } catch (err) {
         // If the DB doesn't exist yet, create it and retry.
         if (err && err.code === 'ER_BAD_DB_ERROR') {
@@ -59,7 +100,9 @@ const connection = async () => {
             } catch (e) {
                 // ignore
             }
-            return await _connect(database);
+            const con = await _connect(database);
+            await _ensureSchema(con);
+            return con;
         }
 
         throw err;
@@ -69,27 +112,8 @@ const connection = async () => {
 // Create the connection with required details
 (async () => {
     try {
-        const _con = await connection();
-
-        const userTableCreated = await query(_con, CREATE_USERS_TABLE).catch(
-            (err) => {
-                console.log(err);
-            }
-        );
-
-        const characterTableCreated = await query(_con, CREATE_CHARACTER_TABLE).catch(
-            (err) => {
-                console.log(err);
-            }
-        );
-
-        if (!!userTableCreated) {
-            console.log('User table Created!');
-        }
-
-        if (!!characterTableCreated) {
-            console.log('Character table created!');
-        }
+        // Trigger schema bootstrap early (but it will also run lazily on demand).
+        await connection();
     } catch (err) {
         console.error('DB init failed:', err && err.message ? err.message : err);
     }

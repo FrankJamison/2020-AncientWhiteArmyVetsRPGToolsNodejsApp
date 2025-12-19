@@ -9,8 +9,10 @@ const {
 const authRoutes = express.Router();
 
 authRoutes.post('/register', register);
+authRoutes.post('/register/:cb', register);
 
 authRoutes.post('/login', login);
+authRoutes.post('/login/:cb', login);
 
 authRoutes.post('/token', token);
 
