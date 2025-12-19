@@ -84,7 +84,7 @@
              * @param {Object} formData - { username, email, password }
              */
             register(formData) {
-                return _postJson(`${AUTH_API}/register`, formData);
+                return _postJson(`${AUTH_API}/register/${Date.now()}`, formData);
             }
 
             /**
@@ -93,7 +93,7 @@
              * @param {Object} formData - { username, password }
              */
             login(formData) {
-                return _postJson(`${AUTH_API}/login`, formData);
+                return _postJson(`${AUTH_API}/login/${Date.now()}`, formData);
             }
 
             setExpiration(maxExpiration) {
