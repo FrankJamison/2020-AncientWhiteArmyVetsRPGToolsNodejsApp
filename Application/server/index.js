@@ -216,6 +216,18 @@ app.get('/api/health', (req, res) => {
     res.json({ ok: true, service: 'api', version: appVersion, node: process.version });
 });
 
+// Cache-busting ping endpoint (useful when a CDN caches error responses).
+app.get('/api/ping', (req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
+    res.json({
+        ok: true,
+        service: 'api',
+        version: appVersion,
+        node: process.version,
+        now: new Date().toISOString(),
+    });
+});
+
 // Convenience: make /api itself respond (helps debug hosting/routing).
 app.get('/api', (req, res) => {
     res.setHeader('Cache-Control', 'no-store');
