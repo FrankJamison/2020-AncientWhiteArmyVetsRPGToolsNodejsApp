@@ -1,5 +1,28 @@
 const _getAccessToken = () => (storageHasData() ? getStorage('access_token') : '');
 
+const _isLocalHostName = (host) => {
+    const h = String(host || '').toLowerCase();
+    return h === 'localhost' || h === '127.0.0.1' || h === '::1';
+};
+
+// Hostinger edge/CDN has shown signs of caching error responses (fixed ETag/content-length).
+// In production (non-localhost), add a cache-busting query parameter.
+const _withCacheBust = (url) => {
+    try {
+        const pageHost = typeof window !== 'undefined' && window.location ? window.location.hostname : '';
+        if (_isLocalHostName(pageHost)) return url;
+
+        // Add a unique query param to avoid intermediate caching.
+        const u = new URL(String(url), typeof window !== 'undefined' ? window.location.origin : undefined);
+        u.searchParams.set('__cb', String(Date.now()));
+        return u.toString();
+    } catch (e) {
+        // If URL parsing fails (e.g., relative URL in older browsers), fall back safely.
+        const sep = String(url).includes('?') ? '&' : '?';
+        return `${url}${sep}__cb=${Date.now()}`;
+    }
+};
+
 const _withFreshAuthHeader = (options) => {
     const accessToken = _getAccessToken();
     const nextOptions = options ? {
@@ -71,14 +94,16 @@ const _throwForBadResponse = async (res) => {
  */
 const _get = async (url, options = DEFAULT_OPTIONS_WITH_AUTH) => {
     const mergedOptions = _withFreshAuthHeader(options);
+    const finalUrl = _withCacheBust(url);
     let res;
     try {
-        res = await fetch(url, {
+        res = await fetch(finalUrl, {
             method: 'GET',
+            cache: 'no-store',
             ...mergedOptions,
         });
     } catch (err) {
-        throw new Error(`Network error while requesting ${url}: ${err && err.message ? err.message : String(err)}`);
+        throw new Error(`Network error while requesting ${finalUrl}: ${err && err.message ? err.message : String(err)}`);
     }
 
     await _throwForBadResponse(res);
@@ -96,15 +121,17 @@ const _get = async (url, options = DEFAULT_OPTIONS_WITH_AUTH) => {
  */
 const _post = async (url, data, options = DEFAULT_OPTIONS) => {
     const mergedOptions = _withFreshAuthHeader(options);
+    const finalUrl = _withCacheBust(url);
     let res;
     try {
-        res = await fetch(url, {
+        res = await fetch(finalUrl, {
             method: 'POST',
+            cache: 'no-store',
             ...mergedOptions,
             body: JSON.stringify(data),
         });
     } catch (err) {
-        throw new Error(`Network error while requesting ${url}: ${err && err.message ? err.message : String(err)}`);
+        throw new Error(`Network error while requesting ${finalUrl}: ${err && err.message ? err.message : String(err)}`);
     }
 
     await _throwForBadResponse(res);
@@ -123,15 +150,17 @@ const _post = async (url, data, options = DEFAULT_OPTIONS) => {
  */
 const _put = async (url, data, options = DEFAULT_OPTIONS_WITH_AUTH) => {
     const mergedOptions = _withFreshAuthHeader(options);
+    const finalUrl = _withCacheBust(url);
     let res;
     try {
-        res = await fetch(url, {
+        res = await fetch(finalUrl, {
             method: 'PUT',
+            cache: 'no-store',
             ...mergedOptions,
             body: JSON.stringify(data),
         });
     } catch (err) {
-        throw new Error(`Network error while requesting ${url}: ${err && err.message ? err.message : String(err)}`);
+        throw new Error(`Network error while requesting ${finalUrl}: ${err && err.message ? err.message : String(err)}`);
     }
 
     await _throwForBadResponse(res);
@@ -149,14 +178,16 @@ const _put = async (url, data, options = DEFAULT_OPTIONS_WITH_AUTH) => {
  */
 const _delete = async (url, options = DEFAULT_OPTIONS_WITH_AUTH) => {
     const mergedOptions = _withFreshAuthHeader(options);
+    const finalUrl = _withCacheBust(url);
     let res;
     try {
-        res = await fetch(url, {
+        res = await fetch(finalUrl, {
             method: 'DELETE',
+            cache: 'no-store',
             ...mergedOptions,
         });
     } catch (err) {
-        throw new Error(`Network error while requesting ${url}: ${err && err.message ? err.message : String(err)}`);
+        throw new Error(`Network error while requesting ${finalUrl}: ${err && err.message ? err.message : String(err)}`);
     }
 
     await _throwForBadResponse(res);
