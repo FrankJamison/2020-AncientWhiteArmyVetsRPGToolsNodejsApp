@@ -46,10 +46,16 @@ exports.register = async (req, res) => {
                 code: err && err.code,
                 errno: err && err.errno,
                 message: err && err.message,
+                target: {
+                    host: process.env.DB_HOST,
+                    port: process.env.DB_PORT,
+                    database: process.env.DB_DATABASE,
+                    user: process.env.DB_USER,
+                },
             });
             return res.status(500).send({
                 msg: 'Database connection failed. Please try again later.',
-                error_code: err && err.code ? String(err.code) : undefined,
+                error_code: err && err.code ? String(err.code) : 'DB_CONNECT_FAILED',
             });
         }
 
@@ -111,10 +117,16 @@ exports.login = async (req, res) => {
                 code: err && err.code,
                 errno: err && err.errno,
                 message: err && err.message,
+                target: {
+                    host: process.env.DB_HOST,
+                    port: process.env.DB_PORT,
+                    database: process.env.DB_DATABASE,
+                    user: process.env.DB_USER,
+                },
             });
             return res.status(500).send({
                 msg: 'Database connection failed. Please try again later.',
-                error_code: err && err.code ? String(err.code) : undefined,
+                error_code: err && err.code ? String(err.code) : 'DB_CONNECT_FAILED',
             });
         }
 

@@ -115,6 +115,9 @@ app.get('/health', (req, res) => res.json({ ok: true }));
 // Avoid noisy 404s in browser console.
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
+// Serve the site homepage explicitly (prevents API-style JSON 404 at '/').
+app.get('/', (req, res) => res.sendFile(path.join(publicDir, 'index.html')));
+
 app.get('/api/health', (req, res) => res.json({ ok: true, service: 'api' }));
 
 app.use('/api/auth', authRoutes);
@@ -169,8 +172,17 @@ app.use('/characters', express.static(path.join(publicDir, 'characters')));
 app.use('/src', express.static(path.join(publicDir, 'src')));
 
 // API error handling (kept consistent with Web-Server)
-app.use(error404);
-app.use(error500);
+app.use('/api', error404);
+app.use('/api', error500);
+
+// Non-API 404
+app.use((req, res) => res.status(404).send('Not Found'));
+
+// Non-API 500
+app.use((err, req, res, next) => {
+    console.error('unhandled error', err);
+    res.status(500).send('Internal Server Error');
+});
 
 app.listen(port, '0.0.0.0', function () {
     console.log('Server started at http://localhost:%s', port);
