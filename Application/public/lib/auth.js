@@ -21,7 +21,7 @@ const _ensureAuthServiceLoaded = async () => {
         window.__authServiceLoading = new Promise((resolve) => {
             const script = document.createElement('script');
             script.async = true;
-            script.src = `/lib/auth-service.js?__cb=${Date.now()}`;
+            script.src = `/lib/auth-service.v2.js?__cb=${Date.now()}`;
             script.onload = () => resolve(_getAuthService());
             script.onerror = () => resolve(null);
             document.head.appendChild(script);
@@ -35,7 +35,7 @@ const _ensureAuthServiceLoaded = async () => {
 
 const _probeAuthServiceScript = async () => {
     try {
-        const url = `/lib/auth-service.js?__probe=${Date.now()}`;
+        const url = `/lib/auth-service.v2.js?__probe=${Date.now()}`;
         const res = await fetch(url, {
             cache: 'no-store'
         });
@@ -51,7 +51,7 @@ const _probeAuthServiceScript = async () => {
             ok: false,
             status: 0,
             contentType: null,
-            url: '/lib/auth-service.js',
+            url: '/lib/auth-service.v2.js',
             error: String(e && e.message ? e.message : e)
         };
     }

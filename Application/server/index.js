@@ -266,6 +266,14 @@ app.get('/lib/auth-service.js', (req, res) => {
     );
 });
 
+app.get('/lib/auth-service.v2.js', (req, res) => {
+    return _sendNoStoreFile(
+        res,
+        path.join(publicDir, 'lib', 'auth-service.v2.js'),
+        path.join(assetsDir.lib, 'auth-service.v2.js'),
+    );
+});
+
 app.get('/lib/auth.js', (req, res) => {
     return _sendNoStoreFile(
         res,
