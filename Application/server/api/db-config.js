@@ -5,6 +5,9 @@ const {
 const {
     CREATE_CHARACTER_TABLE
 } = require('./queries/character.queries');
+const {
+    CREATE_TASKS_TABLE
+} = require('./queries/tasks.queries');
 const query = require('./utils/query');
 
 const host = process.env.DB_HOST || 'localhost';
@@ -12,6 +15,29 @@ const port = Number(process.env.DB_PORT) || 3306;
 const user = process.env.DB_USER || 'root';
 const password = process.env.DB_PASS || '';
 const database = process.env.DB_DATABASE || 'ancientwhitearmyvet';
+
+let _schemaBootstrapped = false;
+
+const _ensureSchema = async (con) => {
+    if (_schemaBootstrapped) return;
+
+    await query(con, CREATE_USERS_TABLE).catch((err) => {
+        console.log('schema users failed:', err && err.message ? err.message : err);
+    });
+
+    await query(con, CREATE_TASKS_TABLE).catch((err) => {
+        console.log('schema tasks failed:', err && err.message ? err.message : err);
+    });
+
+    await query(con, CREATE_CHARACTER_TABLE).catch((err) => {
+        console.log(
+            'schema characters failed:',
+            err && err.message ? err.message : err
+        );
+    });
+
+    _schemaBootstrapped = true;
+};
 
 const _connect = async (dbName) =>
     new Promise((resolve, reject) => {
@@ -36,7 +62,9 @@ const _connect = async (dbName) =>
 
 const connection = async () => {
     try {
-        return await _connect(database);
+        const con = await _connect(database);
+        await _ensureSchema(con);
+        return con;
     } catch (err) {
         if (err && err.code === 'ER_BAD_DB_ERROR') {
             const bootstrapCon = await _connect(null);
@@ -46,7 +74,9 @@ const connection = async () => {
             } catch (e) {
                 // ignore
             }
-            return await _connect(database);
+            const con = await _connect(database);
+            await _ensureSchema(con);
+            return con;
         }
 
         throw err;
@@ -55,25 +85,8 @@ const connection = async () => {
 
 (async () => {
     try {
-        const con = await connection();
-
-        const userTableCreated = await query(con, CREATE_USERS_TABLE).catch((err) => {
-            console.log(err);
-        });
-
-        const characterTableCreated = await query(con, CREATE_CHARACTER_TABLE).catch(
-            (err) => {
-                console.log(err);
-            }
-        );
-
-        if (!!userTableCreated) {
-            console.log('User table Created!');
-        }
-
-        if (!!characterTableCreated) {
-            console.log('Character table created!');
-        }
+        // Trigger schema bootstrap early (but it will also run lazily on demand).
+        await connection();
     } catch (err) {
         console.error('DB init failed:', err && err.message ? err.message : err);
     }

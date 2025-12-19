@@ -71,6 +71,9 @@ const { error404, error500 } = require('./api/middleware/errors.middleware');
 
 app.get('/health', (req, res) => res.json({ ok: true }));
 
+// Avoid noisy 404s in browser console.
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+
 app.get('/api/health', (req, res) => res.json({ ok: true, service: 'api' }));
 
 app.use('/api/auth', authRoutes);
