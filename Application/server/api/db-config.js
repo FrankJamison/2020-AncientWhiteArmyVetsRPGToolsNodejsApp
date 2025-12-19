@@ -53,7 +53,9 @@ const _connect = async (dbName) =>
             user,
             password,
             connectTimeout,
-            ...(dbName ? { database: dbName } : {}),
+            ...(dbName ? {
+                database: dbName
+            } : {}),
         };
 
         // If a socket is provided, force socket connectivity and avoid TCP.
