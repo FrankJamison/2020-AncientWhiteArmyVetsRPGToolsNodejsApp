@@ -177,6 +177,57 @@ app.get('/__diag', (req, res) => {
         }
     };
 
+    const dbTarget = {
+        host: process.env.DB_HOST,
+        port: process.env.DB_PORT,
+        database: process.env.DB_DATABASE,
+        user: process.env.DB_USER,
+    };
+
+    const dbTest = async () => {
+        try {
+            // Lazy require so /__diag still works even if DB code has issues.
+            const getConnection = require('./api/db-config');
+
+            const timeoutMs = Number(process.env.DIAG_DB_TIMEOUT_MS) || 6000;
+            const timeoutPromise = new Promise((_, reject) => {
+                const t = setTimeout(() => {
+                    clearTimeout(t);
+                    reject(Object.assign(new Error('DB diag timeout'), { code: 'DIAG_DB_TIMEOUT' }));
+                }, timeoutMs);
+            });
+
+            const con = await Promise.race([getConnection(), timeoutPromise]);
+            const select1 = await new Promise((resolve, reject) => {
+                con.query('SELECT 1 AS ok', (err, rows) => {
+                    if (err) return reject(err);
+                    return resolve(rows);
+                });
+            });
+
+            try {
+                con.end();
+            } catch (e) {
+                // ignore
+            }
+
+            return { ok: true, select1 };
+        } catch (err) {
+            return {
+                ok: false,
+                error: {
+                    code: err && err.code ? String(err.code) : undefined,
+                    errno: err && err.errno ? Number(err.errno) : undefined,
+                    syscall: err && err.syscall ? String(err.syscall) : undefined,
+                    address: err && err.address ? String(err.address) : undefined,
+                    port: err && err.port ? Number(err.port) : undefined,
+                    fatal: typeof err && err && typeof err.fatal === 'boolean' ? err.fatal : undefined,
+                    message: err && err.message ? String(err.message).slice(0, 300) : undefined,
+                },
+            };
+        }
+    };
+
     const installOk = safeRead(path.join(process.cwd(), 'install.ok'));
     const startOk = safeRead(path.join(process.cwd(), 'start.ok'));
     const appLog = safeRead(logPath);
@@ -185,7 +236,7 @@ app.get('/__diag', (req, res) => {
     const libDir = path.join(publicDir, 'lib');
     const imagesDir = path.join(publicDir, 'images');
 
-    return res.json({
+    return Promise.resolve(dbTest()).then((db) => res.json({
         ok: true,
         node: process.version,
         cwd: process.cwd(),
@@ -199,10 +250,12 @@ app.get('/__diag', (req, res) => {
         imagesDirExists: fs.existsSync(imagesDir),
         imagesDirEntries: safeListDir(imagesDir),
         port,
+        dbTarget,
+        db,
         installOk: installOk ? installOk.trim() : null,
         startOk: startOk ? startOk.trim() : null,
         appLogTail: appLog ? String(appLog).slice(-4000) : null,
-    });
+    }));
 });
 
 app.use(express.static(publicDir));

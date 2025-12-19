@@ -15,6 +15,7 @@ const port = Number(process.env.DB_PORT) || 3306;
 const user = process.env.DB_USER || 'root';
 const password = process.env.DB_PASS || '';
 const database = process.env.DB_DATABASE || 'ancientwhitearmyvet';
+const connectTimeout = Number(process.env.DB_CONNECT_TIMEOUT_MS) || 10000;
 
 let _schemaBootstrapped = false;
 
@@ -46,6 +47,7 @@ const _connect = async (dbName) =>
             user,
             password,
             port,
+            connectTimeout,
             ...(dbName ? {
                 database: dbName
             } : {}),
