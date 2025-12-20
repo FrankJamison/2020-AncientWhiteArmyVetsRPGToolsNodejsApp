@@ -3,6 +3,7 @@
     "private": true,
     "version": "1.0.0",
     "scripts": {
+        "build": "node -e \"process.exit(0)\"",
         "postinstall": "npm --prefix Application install --omit=dev",
         "start": "node Application/server/index.js"
     }
