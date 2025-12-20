@@ -193,6 +193,12 @@ app.get('/__version', (req, res) => {
     res.json({ ok: true, version: appVersion, node: process.version });
 });
 
+// Some hosts only forward /api/* to the Node process.
+app.get('/api/__version', (req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
+    res.json({ ok: true, version: appVersion, node: process.version, request_id: res && res.locals ? res.locals.requestId : undefined });
+});
+
 // Avoid noisy 404s in browser console.
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 

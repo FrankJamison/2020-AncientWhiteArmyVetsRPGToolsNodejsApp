@@ -110,6 +110,18 @@ app.get('/__version', (req, res) => {
     });
 });
 
+// Some hosts only forward /api/* to the Node process.
+// Keep a version endpoint under /api as well so we can reliably verify deployments.
+app.get('/api/__version', (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, max-age=0');
+    res.json({
+        ok: true,
+        version: appVersion,
+        node: process.version,
+        request_id: res && res.locals ? res.locals.requestId : undefined,
+    });
+});
+
 app.get('/api/health', (req, res) => res.json({
     ok: true,
     service: 'api'
