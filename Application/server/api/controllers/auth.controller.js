@@ -26,6 +26,42 @@ const logDbError = (context, err) => {
     });
 };
 
+const normalizeBool = (val) => {
+    if (val === true) return true;
+    if (val === false) return false;
+    if (val === undefined || val === null) return false;
+    const s = String(val).trim().toLowerCase();
+    return s === '1' || s === 'true' || s === 'yes' || s === 'y' || s === 'on';
+};
+
+const errorCodeForDbError = (err) => {
+    const code = err && err.code ? String(err.code) : '';
+    const msg = err && err.message ? String(err.message) : '';
+
+    if (code === 'ER_ACCESS_DENIED_ERROR' || code === 'ER_DBACCESS_DENIED_ERROR') return 'DB_ACCESS_DENIED';
+    if (code === 'ER_BAD_DB_ERROR') return 'DB_BAD_DATABASE';
+    if (code === 'ER_NO_SUCH_TABLE') return 'DB_SCHEMA_MISSING';
+    if (code === 'ER_DUP_ENTRY') return 'DB_DUPLICATE';
+    if (code === 'ETIMEDOUT' || code === 'ESOCKETTIMEDOUT') return 'DB_TIMEOUT';
+    if (code === 'ECONNREFUSED') return 'DB_CONN_REFUSED';
+    if (code === 'ENOTFOUND') return 'DB_HOST_NOT_FOUND';
+    if (code === 'PROTOCOL_CONNECTION_LOST') return 'DB_CONN_LOST';
+    if (code === 'HANDSHAKE_SSL_ERROR') return 'DB_SSL_ERROR';
+
+    // db-config throws a plain Error for missing host; don't leak env var names, just categorize.
+    if (msg.toLowerCase().includes('missing db_host') || msg.toLowerCase().includes('missing app_db_host')) {
+        return 'MISSING_DB_HOST';
+    }
+
+    // If you explicitly want more detail in responses, set EXPOSE_API_ERROR_CODE_DETAILS=true
+    // (still no raw DB message; just the driver code).
+    if (normalizeBool(process.env.EXPOSE_API_ERROR_CODE_DETAILS) && code) {
+        return `DB_${code}`;
+    }
+
+    return 'DB_ERROR';
+};
+
 exports.register = async (req, res) => {
     try {
         const {
@@ -55,7 +91,8 @@ exports.register = async (req, res) => {
             return res
                 .status(500)
                 .send({
-                    msg: 'Database connection failed. Please try again later.'
+                    msg: 'Database connection failed. Please try again later.',
+                    error_code: errorCodeForDbError(err),
                 });
         }
 
@@ -66,7 +103,8 @@ exports.register = async (req, res) => {
         } catch (err) {
             logDbError('query GET_ME_BY_USERNAME (register)', err);
             return res.status(500).send({
-                msg: 'Could not retrieve user.'
+                msg: 'Could not retrieve user.',
+                error_code: errorCodeForDbError(err),
             });
         }
 
@@ -90,7 +128,8 @@ exports.register = async (req, res) => {
             return res
                 .status(500)
                 .send({
-                    msg: 'Could not register user. Please try again later.'
+                    msg: 'Could not register user. Please try again later.',
+                    error_code: errorCodeForDbError(err),
                 });
         }
 

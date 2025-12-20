@@ -15,6 +15,13 @@ const envOr = (...names) => {
     return undefined;
 };
 
+const envBool = (...names) => {
+    const raw = envOr(...names);
+    if (raw === undefined) return false;
+    const s = String(raw).trim().toLowerCase();
+    return s === '1' || s === 'true' || s === 'yes' || s === 'y' || s === 'on';
+};
+
 // Get the Host from Environment or use default
 const host = envOr('DB_HOST', 'APP_DB_HOST', 'MYSQL_HOST', 'DB_HOSTNAME');
 
@@ -34,6 +41,16 @@ const database = envOr('DB_DATABASE', 'DB_NAME', 'MYSQL_DATABASE') || 'ancientwh
 
 const connectionLimit = Number(envOr('DB_CONN_LIMIT', 'MYSQL_CONN_LIMIT')) || 10;
 
+// On shared hosting, CREATE DATABASE often isn't permitted. Only enable when you know you have privileges.
+const enableBootstrap = envBool('DB_BOOTSTRAP', 'MYSQL_BOOTSTRAP');
+
+// Optional SSL for MySQL (some managed/remote MySQL providers require it).
+const enableSsl = envBool('DB_SSL', 'MYSQL_SSL');
+const sslRejectUnauthorized = !envBool('DB_SSL_ALLOW_SELF_SIGNED', 'MYSQL_SSL_ALLOW_SELF_SIGNED');
+const sslOptions = enableSsl ? {
+    rejectUnauthorized: sslRejectUnauthorized
+} : undefined;
+
 const _connect = async (dbName) =>
     new Promise((resolve, reject) => {
         if (!host) {
@@ -46,6 +63,9 @@ const _connect = async (dbName) =>
             user,
             password,
             port,
+            ...(sslOptions ? {
+                ssl: sslOptions
+            } : {}),
             ...(dbName ? {
                 database: dbName
             } : {}),
@@ -69,6 +89,9 @@ const _createPool = (dbName) => {
         password,
         port,
         connectionLimit,
+        ...(sslOptions ? {
+            ssl: sslOptions
+        } : {}),
         ...(dbName ? {
             database: dbName,
         } : {}),
@@ -89,6 +112,9 @@ const connection = async () => {
     } catch (err) {
         // If the DB doesn't exist yet, try to create it and rebuild the pool.
         if (err && err.code === 'ER_BAD_DB_ERROR') {
+            if (!enableBootstrap) {
+                throw err;
+            }
             const bootstrapCon = await _connect(null);
             await query(bootstrapCon, `CREATE DATABASE IF NOT EXISTS \`${database}\``);
             try {
