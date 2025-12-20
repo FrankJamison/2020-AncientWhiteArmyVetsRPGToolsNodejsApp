@@ -1,4 +1,4 @@
-// Load local environment variables from .env (no-op if dotenv isn't installed).
+﻿// Load local environment variables from .env (no-op if dotenv isn't installed).
 // In production, prefer setting real env vars via your host's config.
 try {
     require('dotenv').config();
@@ -44,9 +44,9 @@ app.use(cors());
 // ************************************
 
 // Partial API endpoints
-app.use('/api/auth', authRoutes); // http://localhost:3000/api/auth
-app.use('/api/user', userRoutes); // http://localhost:3000/api/users
-app.use('/api/tasks', tasksRoutes); // http://localhost:3000/api/tasks
+app.use('/api/auth', authRoutes); // /api/auth
+app.use('/api/user', userRoutes); // /api/user
+app.use('/api/tasks', tasksRoutes); // /api/tasks
 app.use('/api/characters', characterRoutes);
 
 // Handle 404 requests

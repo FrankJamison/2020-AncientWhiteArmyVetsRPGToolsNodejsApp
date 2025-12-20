@@ -31,10 +31,10 @@ In order to run the the mysql server, you need an installation of mysql with roo
 brew install mysql
 ```
 
-3. Give access right to `root@localhost`.
+3. Give access rights to your MySQL user (example shown with a placeholder host).
 
 ```bash
-mysql -u root -e "ALTER USER root@localhost IDENTIFIED WITH mysql_native_password BY 'password'; FLUSH PRIVILEGES;"
+mysql -u root -e "ALTER USER root@<db-host> IDENTIFIED WITH mysql_native_password BY 'password'; FLUSH PRIVILEGES;"
 ```
 
 **NOTE: once configured, move onto the next steps.**
@@ -111,7 +111,7 @@ con.query(queries.CREATE_TASKS_TABLE, params, callback);
 
 ## Routes
 
-Routes help direct what an `endpoint` should do. In RESful services, `endpoints` are the full url of a given API at a specific address in that API. For example: `http://localhost:3000/api/tasks` is a RESTful `endpoint`. Pointing my browser at this address (assuming the server is live) will give me results if a route exists and has a [controller method](#controllers) attached.
+Routes help direct what an `endpoint` should do. In RESful services, `endpoints` are the full url of a given API at a specific address in that API. For example: `https://<your-domain>/api/tasks` is a RESTful `endpoint`. Pointing my browser at this address (assuming the server is live) will give me results if a route exists and has a [controller method](#controllers) attached.
 
 Express routes are defined by either one of these:
 

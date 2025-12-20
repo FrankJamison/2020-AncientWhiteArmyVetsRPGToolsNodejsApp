@@ -1,4 +1,4 @@
-const mysql = require('mysql');
+﻿const mysql = require('mysql');
 const connection = require('../db-config');
 const {
   ALL_TASKS,
@@ -20,7 +20,7 @@ const {
  * DELETE - Delete
  */
 
-// http://localhost:3000/tasks
+// /api/tasks
 exports.getAllTasks = async (req, res) => {
   // establish connection
   const con = await connection().catch((err) => {
@@ -41,7 +41,7 @@ exports.getAllTasks = async (req, res) => {
   res.json(tasks);
 };
 
-// http://localhost:3000/tasks/1
+// /api/tasks/1
 exports.getTask = async (req, res) => {
   // establish connection
   const con = await connection().catch((err) => {
@@ -62,7 +62,7 @@ exports.getTask = async (req, res) => {
   res.json(task);
 };
 
-// http://localhost:3000/tasks
+// /api/tasks
 /**
  * POST request -
  * {
@@ -118,7 +118,7 @@ const _buildValuesString = (req) => {
   return values;
 };
 
-// http://localhost:3000/tasks/1
+// /api/tasks/1
 /**
  * PUT request -
  * {
@@ -149,7 +149,7 @@ exports.updateTask = async (req, res) => {
   res.json(result);
 };
 
-// http://localhost:3000/tasks/1
+// /api/tasks/1
 exports.deleteTask = async (req, res) => {
   // establish connection
   const con = await connection().catch((err) => {

@@ -1,4 +1,4 @@
-const mysql = require('mysql');
+﻿const mysql = require('mysql');
 const {
     CREATE_USERS_TABLE
 } = require('./queries/user.queries');
@@ -8,7 +8,7 @@ const {
 const query = require('./utils/query');
 
 // Get the Host from Environment or use default
-const host = process.env.DB_HOST || 'localhost';
+const host = process.env.DB_HOST || process.env.APP_DB_HOST;
 
 // Get the Port for DB from Environment or use default
 const port = Number(process.env.DB_PORT) || 3306;
@@ -26,6 +26,11 @@ const database = process.env.DB_DATABASE || 'ancientwhitearmyvet';
 
 const _connect = async (dbName) =>
     new Promise((resolve, reject) => {
+        if (!host) {
+            reject(new Error('Missing DB_HOST (or APP_DB_HOST) environment variable'));
+            return;
+        }
+
         const con = mysql.createConnection({
             host,
             user,

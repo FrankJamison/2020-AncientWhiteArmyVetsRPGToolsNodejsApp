@@ -1,4 +1,4 @@
-const mysql = require('mysql');
+﻿const mysql = require('mysql');
 const connection = require('../db-config');
 const {
     ALL_CHARACTERS,
@@ -20,7 +20,7 @@ const {
  * DELETE - Delete
  */
 
-// http://localhost:3000/characters
+// /api/characters
 exports.getAllCharacters = async (req, res) => {
     // establish connection
     const con = await connection().catch((err) => {
@@ -39,7 +39,7 @@ exports.getAllCharacters = async (req, res) => {
     return res.json(characters);
 };
 
-// http://localhost:3000/characters/1
+// /api/characters/1
 exports.getCharacter = async (req, res) => {
     // establish connection
     const con = await connection().catch((err) => {
@@ -58,7 +58,7 @@ exports.getCharacter = async (req, res) => {
     return res.json(character);
 };
 
-// http://localhost:3000/characters
+// /api/characters
 /**
  * POST request -
  * {
@@ -120,7 +120,7 @@ const _buildValuesString = (req) => {
     return values;
 };
 
-// http://localhost:3000/characters/1
+// /api/characters/1
 /**
  * PUT request -
  * {
@@ -151,7 +151,7 @@ exports.updateCharacter = async (req, res) => {
     res.json(result);
 };
 
-// http://localhost:3000/characters/1
+// /api/characters/1
 exports.deleteCharacter = async (req, res) => {
     // establish connection
     const con = await connection().catch((err) => {

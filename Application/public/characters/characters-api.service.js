@@ -1,4 +1,4 @@
-const CHARACTERS_API = `${BASE_API_URL}/characters`; // http://localhost:3000/api/tasks
+﻿const CHARACTERS_API = `${BASE_API_URL}/characters`; // /api/characters
 
 class CharactersService {
     getCharacters = () => _get(CHARACTERS_API, OPTIONS_WITH_AUTH);

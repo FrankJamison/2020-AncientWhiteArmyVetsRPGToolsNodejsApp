@@ -1,4 +1,4 @@
-// const chai = require('chai');
+﻿// const chai = require('chai');
 // const expect = chai.expect;
 // const chaiHttp = require('chai-http');
 
@@ -18,7 +18,7 @@
 //     ];
 
 //     chai
-//       .request('http://localhost:3000')
+//       .request(process.env.API_BASE_URL)
 //       .get('/api/user/me')
 //       .set('Authorization', `Bearer ${token}`)
 //       .end((err, resp) => {
@@ -37,7 +37,7 @@
 //     const expected = { msg: 'Updated succesfully!' };
 
 //     chai
-//       .request('http://localhost:3000')
+//       .request(process.env.API_BASE_URL)
 //       .put('/api/user/me/update')
 //       .set('Authorization', `Bearer ${token}`)
 //       .send(updatedUser)
@@ -56,7 +56,7 @@
 //     const expected = { msg: 'Nothing to update...' };
 
 //     chai
-//       .request('http://localhost:3000')
+//       .request(process.env.API_BASE_URL)
 //       .put('/api/user/me/update')
 //       .set('Authorization', `Bearer ${token}`)
 //       .send(updatedUser)
