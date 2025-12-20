@@ -1,15 +1,19 @@
 ﻿const express = require('express');
-const app = express();
 const path = require('path');
 
-const port = process.env.PORT || 4000;
+const apiApp = require('./api/app');
 
-app.use(express.static('public'));
+const app = express();
+const port = process.env.PORT || 3001;
 
-app.use('/css', express.static(__dirname + '/public/css')); // http://<host>:3000/css
-app.use('/js', express.static(__dirname + '/public/src')); // http://<host>:3000/js
-app.use('/pdf', express.static(path.join(__dirname, '/public/pdf'))); // http://<host>:3000/pdf
+// Serve the static frontend pages
+const staticRoot = path.join(__dirname, '../public');
+app.use(express.static(staticRoot));
 
-app.listen(port, function () {
-    console.log('Server started on port %s', port);
+// Serve the API from the same origin
+app.use(apiApp);
+
+app.listen(port, () => {
+    console.log('Running on port: %s', port);
 });
+

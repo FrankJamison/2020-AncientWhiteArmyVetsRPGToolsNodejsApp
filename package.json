@@ -1,0 +1,9 @@
+{
+    "name": "ancientwhitearmyvet-rpgtools",
+    "private": true,
+    "version": "1.0.0",
+    "scripts": {
+        "postinstall": "npm --prefix Application install --omit=dev",
+        "start": "node Application/server/index.js"
+    }
+}

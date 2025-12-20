@@ -1,4 +1,4 @@
-﻿// Load local environment variables from .env (no-op if dotenv isn't installed).
+// Load local environment variables from .env (no-op if dotenv isn't installed).
 // In production, prefer setting real env vars via your host's config.
 try {
     require('dotenv').config();
@@ -10,7 +10,6 @@ const express = require('express');
 const cors = require('cors');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
-const path = require('path');
 
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
@@ -22,21 +21,15 @@ const {
 } = require('./middleware/errors.middleware');
 
 const app = express();
-const port = process.env.PORT || 3001;
 const logLevel = process.env.LOG_LEVEL || 'dev';
 const env = process.env.NODE_ENV;
-
-// Serve the frontend from the same origin as the API.
-// This allows production to use https://www.ancientwhitearmyvet.com/api for API calls.
-const staticRoot = path.join(__dirname, '../../Application/public');
-app.use(express.static(staticRoot));
 
 // Middleware - logs server requests to console
 if (env !== 'test') {
     app.use(logger(logLevel));
 }
 
-// Middleware - parses incoming requests data (https://github.com/expresssrc/body-parser)
+// Middleware - parses incoming requests data
 app.use(bodyParser.urlencoded({
     extended: false
 }));
@@ -45,24 +38,16 @@ app.use(bodyParser.json());
 // Allow websites to talk to our API service.
 app.use(cors());
 
-// ************************************
-// ROUTE-HANDLING MIDDLEWARE FUNCTIONS
-// ************************************
-
 // Partial API endpoints
-app.use('/api/auth', authRoutes); // /api/auth
-app.use('/api/user', userRoutes); // /api/user
-app.use('/api/tasks', tasksRoutes); // /api/tasks
+app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/tasks', tasksRoutes);
 app.use('/api/characters', characterRoutes);
 
 // Handle 404 requests
 app.use(error404);
 
-// Handle 500 requests - applies mostly to live services
+// Handle 500 requests
 app.use(error500);
 
-// listen on server port
-app.listen(port, () => {
-    console.log(`Running on port: ${port}...`);
-});
-
+module.exports = app;
