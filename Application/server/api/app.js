@@ -63,7 +63,19 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 
 // Allow websites to talk to our API service.
-app.use(cors());
+// Expose our debug headers (safe, no secrets) so they can be read by browser JS if needed.
+app.use(cors({
+    exposedHeaders: [
+        'x-app-build',
+        'x-app-env',
+        'x-dotenv-loaded',
+        'x-env-has-db-host',
+        'x-env-has-db-user',
+        'x-env-has-db-pass',
+        'x-env-has-db-name',
+        'x-env-has-db-port',
+    ],
+}));
 
 // Partial API endpoints
 app.use('/api/auth', authRoutes);
