@@ -7,22 +7,32 @@ const {
 } = require('./queries/character.queries');
 const query = require('./utils/query');
 
+const envOr = (...names) => {
+    for (const name of names) {
+        const val = process.env[name];
+        if (val !== undefined && val !== null && String(val).trim() !== '') return val;
+    }
+    return undefined;
+};
+
 // Get the Host from Environment or use default
-const host = process.env.DB_HOST || process.env.APP_DB_HOST;
+const host = envOr('DB_HOST', 'APP_DB_HOST', 'MYSQL_HOST', 'DB_HOSTNAME');
 
 // Get the Port for DB from Environment or use default
 const port = Number(process.env.DB_PORT) || 3306;
 
 // Get the User for DB from Environment or use default
 // NOTE: Defaulting to 'root' matches common local MySQL/XAMPP setups.
-const user = process.env.DB_USER || 'root';
+const user = envOr('DB_USER', 'DB_USERNAME', 'MYSQL_USER') || 'root';
 
 // Get the Password for DB from Environment or use default
 // NOTE: Many local MySQL installs (e.g., XAMPP) default to a blank password.
-const password = process.env.DB_PASS || '';
+const password = envOr('DB_PASS', 'DB_PASSWORD', 'MYSQL_PASSWORD') || '';
 
 // Get the Database from Environment or use default
-const database = process.env.DB_DATABASE || 'ancientwhitearmyvet';
+const database = envOr('DB_DATABASE', 'DB_NAME', 'MYSQL_DATABASE') || 'ancientwhitearmyvet';
+
+const connectionLimit = Number(envOr('DB_CONN_LIMIT', 'MYSQL_CONN_LIMIT')) || 10;
 
 const _connect = async (dbName) =>
     new Promise((resolve, reject) => {
@@ -51,11 +61,33 @@ const _connect = async (dbName) =>
         });
     });
 
+const _createPool = (dbName) => {
+    if (!host) throw new Error('Missing DB_HOST (or APP_DB_HOST) environment variable');
+    return mysql.createPool({
+        host,
+        user,
+        password,
+        port,
+        connectionLimit,
+        ...(dbName ? {
+            database: dbName,
+        } : {}),
+    });
+};
+
+let pool;
+
 const connection = async () => {
     try {
-        return await _connect(database);
+        if (!pool) {
+            pool = _createPool(database);
+        }
+
+        // Validate the pool can talk to the DB.
+        await query(pool, 'SELECT 1');
+        return pool;
     } catch (err) {
-        // If the DB doesn't exist yet, create it and retry.
+        // If the DB doesn't exist yet, try to create it and rebuild the pool.
         if (err && err.code === 'ER_BAD_DB_ERROR') {
             const bootstrapCon = await _connect(null);
             await query(bootstrapCon, `CREATE DATABASE IF NOT EXISTS \`${database}\``);
@@ -64,7 +96,10 @@ const connection = async () => {
             } catch (e) {
                 // ignore
             }
-            return await _connect(database);
+
+            pool = _createPool(database);
+            await query(pool, 'SELECT 1');
+            return pool;
         }
 
         throw err;

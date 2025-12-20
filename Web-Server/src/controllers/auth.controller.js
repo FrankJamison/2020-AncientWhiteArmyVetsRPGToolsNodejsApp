@@ -68,6 +68,11 @@ exports.register = async (req, res) => {
         try {
             await query(con, INSERT_NEW_USER, params);
         } catch (err) {
+            if (err && err.code === 'ER_DUP_ENTRY') {
+                return res.status(409).send({
+                    msg: 'User already exists!'
+                });
+            }
             return res
                 .status(500)
                 .send({

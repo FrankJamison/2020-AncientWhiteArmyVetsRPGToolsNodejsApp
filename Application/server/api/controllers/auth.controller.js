@@ -15,6 +15,17 @@ const {
     jwtconfig,
 } = require('../utils/jwt-helpers');
 
+const logDbError = (context, err) => {
+    const code = err && err.code ? err.code : undefined;
+    const errno = err && err.errno ? err.errno : undefined;
+    const message = err && err.message ? err.message : String(err);
+    console.error(`[auth] ${context} failed`, {
+        code,
+        errno,
+        message,
+    });
+};
+
 exports.register = async (req, res) => {
     try {
         const {
@@ -40,6 +51,7 @@ exports.register = async (req, res) => {
         try {
             con = await connection();
         } catch (err) {
+            logDbError('db connection (register)', err);
             return res
                 .status(500)
                 .send({
@@ -52,6 +64,7 @@ exports.register = async (req, res) => {
         try {
             user = await query(con, GET_ME_BY_USERNAME, [username]);
         } catch (err) {
+            logDbError('query GET_ME_BY_USERNAME (register)', err);
             return res.status(500).send({
                 msg: 'Could not retrieve user.'
             });
@@ -68,6 +81,12 @@ exports.register = async (req, res) => {
         try {
             await query(con, INSERT_NEW_USER, params);
         } catch (err) {
+            if (err && err.code === 'ER_DUP_ENTRY') {
+                return res.status(409).send({
+                    msg: 'User already exists!'
+                });
+            }
+            logDbError('query INSERT_NEW_USER (register)', err);
             return res
                 .status(500)
                 .send({

@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node ./src/index.js",
     "dev": "nodemon ./src/index.js",
-    "test": "NODE_ENV='test' mocha ./tests/*"
+    "test": "win-node-env NODE_ENV=test mocha ./tests/*"
   },
   "author": "",
   "license": "ISC",
