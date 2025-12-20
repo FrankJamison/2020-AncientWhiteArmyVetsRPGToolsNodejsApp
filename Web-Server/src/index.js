@@ -98,7 +98,9 @@ app.use(express.static(publicDir));
 // Health check (useful for production diagnostics)
 app.get('/health', (req, res) => res.json({
     ok: true,
-    service: 'api'
+    service: 'api',
+    version: appVersion,
+    request_id: res && res.locals ? res.locals.requestId : undefined,
 }));
 
 app.get('/__version', (req, res) => {
@@ -124,7 +126,9 @@ app.get('/api/__version', (req, res) => {
 
 app.get('/api/health', (req, res) => res.json({
     ok: true,
-    service: 'api'
+    service: 'api',
+    version: appVersion,
+    request_id: res && res.locals ? res.locals.requestId : undefined,
 }));
 
 // Partial API endpoints
