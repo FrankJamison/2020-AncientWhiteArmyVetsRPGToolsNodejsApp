@@ -1,9 +1,6 @@
 const _getAccessToken = () => (storageHasData() ? getStorage('access_token') : '');
 
-const _isLocalHostName = (host) => {
-    const h = String(host || '').toLowerCase();
-    return h === 'localhost' || h === '127.0.0.1' || h === '::1';
-};
+// Note: _isLocalHostName is defined in api.config.js which loads before this file
 
 // Hostinger edge/CDN has shown signs of caching error responses (fixed ETag/content-length).
 // In production (non-localhost), add a cache-busting query parameter.
