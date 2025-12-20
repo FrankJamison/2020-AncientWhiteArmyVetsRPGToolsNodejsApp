@@ -24,6 +24,18 @@ const app = express();
 const logLevel = process.env.LOG_LEVEL || 'dev';
 const env = process.env.NODE_ENV;
 
+// Debug-friendly headers to confirm which build is deployed (safe: no secrets).
+// Set APP_BUILD in your host panel (e.g. a date or git sha).
+app.use((req, res, next) => {
+    if (process.env.APP_BUILD) {
+        res.setHeader('x-app-build', String(process.env.APP_BUILD));
+    }
+    if (process.env.NODE_ENV) {
+        res.setHeader('x-app-env', String(process.env.NODE_ENV));
+    }
+    next();
+});
+
 // Middleware - logs server requests to console
 if (env !== 'test') {
     app.use(logger(logLevel));
