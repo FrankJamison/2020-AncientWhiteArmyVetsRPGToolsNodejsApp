@@ -1,7 +1,9 @@
 // Load local environment variables from .env (no-op if dotenv isn't installed).
 // In production, prefer setting real env vars via your host's config.
+let dotenvLoaded = false;
 try {
     require('dotenv').config();
+    dotenvLoaded = true;
 } catch (e) {
     // ignore
 }
@@ -27,12 +29,25 @@ const env = process.env.NODE_ENV;
 // Debug-friendly headers to confirm which build is deployed (safe: no secrets).
 // Set APP_BUILD in your host panel (e.g. a date or git sha).
 app.use((req, res, next) => {
+    const hasEnv = (name) => {
+        const val = process.env[name];
+        return val !== undefined && val !== null && String(val).trim() !== '';
+    };
+
     if (process.env.APP_BUILD) {
         res.setHeader('x-app-build', String(process.env.APP_BUILD));
     }
     if (process.env.NODE_ENV) {
         res.setHeader('x-app-env', String(process.env.NODE_ENV));
     }
+
+    // Env presence checks (boolean only; does not reveal values).
+    res.setHeader('x-dotenv-loaded', dotenvLoaded ? '1' : '0');
+    res.setHeader('x-env-has-db-host', (hasEnv('DB_HOST') || hasEnv('APP_DB_HOST') || hasEnv('MYSQL_HOST') || hasEnv('DB_HOSTNAME')) ? '1' : '0');
+    res.setHeader('x-env-has-db-user', (hasEnv('DB_USER') || hasEnv('DB_USERNAME') || hasEnv('MYSQL_USER')) ? '1' : '0');
+    res.setHeader('x-env-has-db-pass', (hasEnv('DB_PASS') || hasEnv('DB_PASSWORD') || hasEnv('MYSQL_PASSWORD')) ? '1' : '0');
+    res.setHeader('x-env-has-db-name', (hasEnv('DB_DATABASE') || hasEnv('DB_NAME') || hasEnv('MYSQL_DATABASE')) ? '1' : '0');
+    res.setHeader('x-env-has-db-port', hasEnv('DB_PORT') ? '1' : '0');
     next();
 });
 
