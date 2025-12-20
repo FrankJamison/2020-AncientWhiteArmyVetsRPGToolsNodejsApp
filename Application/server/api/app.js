@@ -51,6 +51,15 @@ app.use((req, res, next) => {
     next();
 });
 
+// Prevent CDN/proxy caching of API responses.
+app.use((req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Surrogate-Control', 'no-store');
+    next();
+});
+
 // Middleware - logs server requests to console
 if (env !== 'test') {
     app.use(logger(logLevel));
@@ -76,6 +85,27 @@ app.use(cors({
         'x-env-has-db-port',
     ],
 }));
+
+// Diagnostics endpoint (no secrets): confirms which build is deployed and whether env vars exist.
+app.get('/api/_diag', (req, res) => {
+    const hasEnv = (name) => {
+        const val = process.env[name];
+        return val !== undefined && val !== null && String(val).trim() !== '';
+    };
+
+    res.json({
+        app_build: process.env.APP_BUILD || null,
+        node_env: process.env.NODE_ENV || null,
+        dotenv_loaded: dotenvLoaded,
+        env: {
+            has_db_host: (hasEnv('DB_HOST') || hasEnv('APP_DB_HOST') || hasEnv('MYSQL_HOST') || hasEnv('DB_HOSTNAME')),
+            has_db_user: (hasEnv('DB_USER') || hasEnv('DB_USERNAME') || hasEnv('MYSQL_USER')),
+            has_db_pass: (hasEnv('DB_PASS') || hasEnv('DB_PASSWORD') || hasEnv('MYSQL_PASSWORD')),
+            has_db_name: (hasEnv('DB_DATABASE') || hasEnv('DB_NAME') || hasEnv('MYSQL_DATABASE')),
+            has_db_port: hasEnv('DB_PORT'),
+        },
+    });
+});
 
 // Partial API endpoints
 app.use('/api/auth', authRoutes);

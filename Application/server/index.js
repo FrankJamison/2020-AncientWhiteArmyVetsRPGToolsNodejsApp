@@ -6,6 +6,17 @@ const apiApp = require('./api/app');
 const app = express();
 const port = process.env.PORT || 3001;
 
+// Prevent CDN/proxy caching of API responses.
+app.use((req, res, next) => {
+    if (req.path && String(req.path).startsWith('/api')) {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        res.setHeader('Surrogate-Control', 'no-store');
+    }
+    next();
+});
+
 // Debug-friendly headers + endpoint to verify which build is deployed and whether env vars exist.
 // Safe: does not expose secrets.
 app.use((req, res, next) => {
